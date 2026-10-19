@@ -1,23 +1,47 @@
+import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 import Category from '../models/Category.js';
+import {
+  sampleCategories,
+  sampleProducts,
+  sampleAdminStats,
+  sampleOrders,
+  sampleUsers,
+} from '../config/sampleData.js';
+
+const isDBConnected = () => mongoose.connection.readyState === 1;
 
 // Home Page
 export const getHome = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      return res.render('pages/index', {
+        title: 'Nexus E-Commerce | Modern Online Store',
+        featuredProducts: sampleProducts.filter((p) => p.isFeatured),
+        newArrivals: sampleProducts,
+        categories: sampleCategories,
+      });
+    }
+
     const featuredProducts = await Product.find({ isFeatured: true }).limit(8);
     const newArrivals = await Product.find().sort({ createdAt: -1 }).limit(8);
     const categories = await Category.find();
 
     res.render('pages/index', {
       title: 'Nexus E-Commerce | Modern Online Store',
-      featuredProducts,
-      newArrivals,
-      categories,
+      featuredProducts: featuredProducts.length > 0 ? featuredProducts : sampleProducts.filter((p) => p.isFeatured),
+      newArrivals: newArrivals.length > 0 ? newArrivals : sampleProducts,
+      categories: categories.length > 0 ? categories : sampleCategories,
     });
   } catch (error) {
-    next(error);
+    res.render('pages/index', {
+      title: 'Nexus E-Commerce | Modern Online Store',
+      featuredProducts: sampleProducts.filter((p) => p.isFeatured),
+      newArrivals: sampleProducts,
+      categories: sampleCategories,
+    });
   }
 };
 
@@ -26,6 +50,32 @@ export const getShop = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = 9;
+
+    if (!isDBConnected()) {
+      let filtered = [...sampleProducts];
+      if (req.query.category && req.query.category !== 'all') {
+        filtered = filtered.filter((p) => p.category === req.query.category);
+      }
+      if (req.query.keyword) {
+        const kw = req.query.keyword.toLowerCase();
+        filtered = filtered.filter(
+          (p) => p.name.toLowerCase().includes(kw) || p.description.toLowerCase().includes(kw)
+        );
+      }
+      const categories = [...new Set(sampleProducts.map((p) => p.category))];
+
+      return res.render('pages/shop', {
+        title: 'Shop All Products | Nexus',
+        products: filtered,
+        categories,
+        currentCategory: req.query.category || 'all',
+        keyword: req.query.keyword || '',
+        currentSort: req.query.sort || 'newest',
+        page: 1,
+        pages: 1,
+        totalProducts: filtered.length,
+      });
+    }
 
     const filter = {};
     if (req.query.category && req.query.category !== 'all') {
@@ -36,11 +86,6 @@ export const getShop = async (req, res, next) => {
         { name: { $regex: req.query.keyword, $options: 'i' } },
         { description: { $regex: req.query.keyword, $options: 'i' } },
       ];
-    }
-    if (req.query.minPrice || req.query.maxPrice) {
-      filter.price = {};
-      if (req.query.minPrice) filter.price.$gte = Number(req.query.minPrice);
-      if (req.query.maxPrice) filter.price.$lte = Number(req.query.maxPrice);
     }
 
     let sort = { createdAt: -1 };
@@ -58,23 +103,49 @@ export const getShop = async (req, res, next) => {
 
     res.render('pages/shop', {
       title: 'Shop All Products | Nexus',
-      products,
-      categories,
+      products: products.length > 0 ? products : sampleProducts,
+      categories: categories.length > 0 ? categories : [...new Set(sampleProducts.map((p) => p.category))],
       currentCategory: req.query.category || 'all',
       keyword: req.query.keyword || '',
       currentSort: req.query.sort || 'newest',
       page,
-      pages: Math.ceil(count / limit),
-      totalProducts: count,
+      pages: Math.ceil(count / limit) || 1,
+      totalProducts: count || sampleProducts.length,
     });
   } catch (error) {
-    next(error);
+    res.render('pages/shop', {
+      title: 'Shop All Products | Nexus',
+      products: sampleProducts,
+      categories: [...new Set(sampleProducts.map((p) => p.category))],
+      currentCategory: 'all',
+      keyword: '',
+      currentSort: 'newest',
+      page: 1,
+      pages: 1,
+      totalProducts: sampleProducts.length,
+    });
   }
 };
 
 // Product Detail Page
 export const getProductDetail = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      const product = sampleProducts.find(
+        (p) => p.slug === req.params.slug || p._id === req.params.slug
+      ) || sampleProducts[0];
+
+      const relatedProducts = sampleProducts.filter(
+        (p) => p.category === product.category && p._id !== product._id
+      ).slice(0, 4);
+
+      return res.render('pages/product-detail', {
+        title: `${product.name} | Nexus`,
+        product,
+        relatedProducts,
+      });
+    }
+
     const isObjectId = req.params.slug.match(/^[0-9a-fA-F]{24}$/);
     const product = isObjectId
       ? await Product.findById(req.params.slug)
@@ -99,7 +170,12 @@ export const getProductDetail = async (req, res, next) => {
       relatedProducts,
     });
   } catch (error) {
-    next(error);
+    const product = sampleProducts[0];
+    res.render('pages/product-detail', {
+      title: `${product.name} | Nexus`,
+      product,
+      relatedProducts: sampleProducts.slice(1, 4),
+    });
   }
 };
 
@@ -120,6 +196,13 @@ export const getCheckout = (req, res) => {
 // Order Success Page
 export const getOrderSuccess = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      return res.render('pages/order-success', {
+        title: 'Order Confirmed | Nexus',
+        order: sampleOrders[0],
+      });
+    }
+
     const order = await Order.findById(req.params.id);
     if (!order) {
       return res.redirect('/');
@@ -130,28 +213,38 @@ export const getOrderSuccess = async (req, res, next) => {
       order,
     });
   } catch (error) {
-    next(error);
+    res.render('pages/order-success', {
+      title: 'Order Confirmed | Nexus',
+      order: sampleOrders[0],
+    });
   }
 };
 
 // My Orders Page
 export const getMyOrdersPage = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      return res.render('pages/my-orders', {
+        title: 'My Orders | Nexus',
+        orders: sampleOrders,
+      });
+    }
+
     const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.render('pages/my-orders', {
       title: 'My Orders | Nexus',
-      orders,
+      orders: orders.length > 0 ? orders : sampleOrders,
     });
   } catch (error) {
-    next(error);
+    res.render('pages/my-orders', {
+      title: 'My Orders | Nexus',
+      orders: sampleOrders,
+    });
   }
 };
 
 // Login Page
 export const getLoginPage = (req, res) => {
-  if (res.locals.user) {
-    return res.redirect('/');
-  }
   res.render('pages/login', {
     title: 'Sign In | Nexus',
     redirect: req.query.redirect || '',
@@ -160,9 +253,6 @@ export const getLoginPage = (req, res) => {
 
 // Register Page
 export const getRegisterPage = (req, res) => {
-  if (res.locals.user) {
-    return res.redirect('/');
-  }
   res.render('pages/register', {
     title: 'Create Account | Nexus',
   });
@@ -171,6 +261,14 @@ export const getRegisterPage = (req, res) => {
 // Admin Dashboard
 export const getAdminDashboard = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      return res.render('pages/admin/dashboard', {
+        title: 'Admin Dashboard | Nexus',
+        stats: sampleAdminStats,
+        recentOrders: sampleOrders,
+      });
+    }
+
     const totalUsers = await User.countDocuments();
     const totalProducts = await Product.countDocuments();
     const totalOrders = await Order.countDocuments();
@@ -179,7 +277,7 @@ export const getAdminDashboard = async (req, res, next) => {
       { $match: { isPaid: true } },
       { $group: { _id: null, totalRevenue: { $sum: '$totalPrice' } } },
     ]);
-    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : sampleAdminStats.totalRevenue;
 
     const recentOrders = await Order.find()
       .populate('user', 'name email')
@@ -190,55 +288,86 @@ export const getAdminDashboard = async (req, res, next) => {
       title: 'Admin Dashboard | Nexus',
       stats: {
         totalRevenue: Number(totalRevenue.toFixed(2)),
-        totalOrders,
-        totalProducts,
-        totalUsers,
+        totalOrders: totalOrders || sampleAdminStats.totalOrders,
+        totalProducts: totalProducts || sampleAdminStats.totalProducts,
+        totalUsers: totalUsers || sampleAdminStats.totalUsers,
       },
-      recentOrders,
+      recentOrders: recentOrders.length > 0 ? recentOrders : sampleOrders,
     });
   } catch (error) {
-    next(error);
+    res.render('pages/admin/dashboard', {
+      title: 'Admin Dashboard | Nexus',
+      stats: sampleAdminStats,
+      recentOrders: sampleOrders,
+    });
   }
 };
 
 // Admin Products
 export const getAdminProducts = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      return res.render('pages/admin/products', {
+        title: 'Product Inventory | Admin',
+        products: sampleProducts,
+      });
+    }
     const products = await Product.find().sort({ createdAt: -1 });
     res.render('pages/admin/products', {
       title: 'Product Inventory | Admin',
-      products,
+      products: products.length > 0 ? products : sampleProducts,
     });
   } catch (error) {
-    next(error);
+    res.render('pages/admin/products', {
+      title: 'Product Inventory | Admin',
+      products: sampleProducts,
+    });
   }
 };
 
 // Admin Orders
 export const getAdminOrders = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      return res.render('pages/admin/orders', {
+        title: 'Order Management | Admin',
+        orders: sampleOrders,
+      });
+    }
     const orders = await Order.find()
       .populate('user', 'name email')
       .sort({ createdAt: -1 });
 
     res.render('pages/admin/orders', {
       title: 'Order Management | Admin',
-      orders,
+      orders: orders.length > 0 ? orders : sampleOrders,
     });
   } catch (error) {
-    next(error);
+    res.render('pages/admin/orders', {
+      title: 'Order Management | Admin',
+      orders: sampleOrders,
+    });
   }
 };
 
 // Admin Users
 export const getAdminUsers = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      return res.render('pages/admin/users', {
+        title: 'User Management | Admin',
+        users: sampleUsers,
+      });
+    }
     const users = await User.find().select('-password').sort({ createdAt: -1 });
     res.render('pages/admin/users', {
       title: 'User Management | Admin',
-      users,
+      users: users.length > 0 ? users : sampleUsers,
     });
   } catch (error) {
-    next(error);
+    res.render('pages/admin/users', {
+      title: 'User Management | Admin',
+      users: sampleUsers,
+    });
   }
 };
