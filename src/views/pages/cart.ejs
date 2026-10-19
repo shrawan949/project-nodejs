@@ -1,5 +1,5 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10" id="cart-app">
-  <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-8">Shopping Cart</h1>
+  <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-8">My Shopping Bag</h1>
 
   <div id="cart-content" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
     <!-- Populated by JavaScript -->
@@ -15,14 +15,14 @@ function renderCart() {
 
   if (items.length === 0) {
     container.innerHTML = `
-      <div class="col-span-12 bg-white rounded-3xl border border-slate-200/80 p-16 text-center">
-        <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-2xl mb-4">
+      <div class="col-span-12 bg-white rounded-3xl border border-slate-200/80 p-16 text-center shadow-sm">
+        <div class="w-20 h-20 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto text-3xl mb-4">
           <i class="fas fa-shopping-bag"></i>
         </div>
-        <h3 class="text-lg font-black text-slate-900">Your shopping bag is empty</h3>
-        <p class="text-xs text-slate-400 mt-1 mb-6">Discover our latest gear and add your favorite items to cart.</p>
-        <a href="/shop" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition-all">
-          <span>Explore Catalog</span>
+        <h3 class="text-xl font-black text-slate-900">Your shopping bag is empty</h3>
+        <p class="text-xs text-slate-400 mt-1 mb-6">Explore our curated collection of Samsung Appliances, Puma Sports, and Tech.</p>
+        <a href="/shop" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all">
+          <span>Start Shopping</span>
           <i class="fas fa-arrow-right text-xs"></i>
         </a>
       </div>
@@ -40,9 +40,9 @@ function renderCart() {
     }
   }
 
-  const shipping = subtotal > 100 ? 0 : 10;
+  const shipping = subtotal > 999 ? 0 : 99;
   const taxableAmount = Math.max(0, subtotal - discount);
-  const tax = Number((taxableAmount * 0.08).toFixed(2));
+  const tax = Number((taxableAmount * 0.18).toFixed(2)); // 18% GST
   const total = Number((taxableAmount + tax + shipping).toFixed(2));
 
   container.innerHTML = `
@@ -50,11 +50,11 @@ function renderCart() {
     <div class="lg:col-span-8 space-y-4">
       <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm divide-y divide-slate-100">
         ${items.map(item => `
-          <div class="py-4 first:pt-0 last:pb-0 flex items-center gap-4 sm:gap-6">
-            <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-2xl bg-slate-100 shrink-0">
+          <div class="py-5 first:pt-0 last:pb-0 flex items-center gap-4 sm:gap-6">
+            <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-contain p-2 rounded-2xl bg-slate-50 border border-slate-100 shrink-0">
             <div class="flex-1 min-w-0">
               <h4 class="text-sm font-bold text-slate-900 truncate"><a href="/product/${item.slug || item.id}">${item.name}</a></h4>
-              <p class="text-xs text-slate-400 mt-0.5">$${item.price.toFixed(2)} each</p>
+              <p class="text-xs text-slate-500 font-semibold mt-0.5">₹${Number(item.price).toLocaleString('en-IN')} each</p>
               
               <div class="flex items-center gap-4 mt-3">
                 <div class="flex items-center border border-slate-200 rounded-xl p-0.5 bg-slate-50">
@@ -74,14 +74,14 @@ function renderCart() {
             </div>
 
             <div class="text-right">
-              <span class="text-base font-black text-slate-900">$${(item.price * item.qty).toFixed(2)}</span>
+              <span class="text-base font-black text-slate-900">₹${Number(item.price * item.qty).toLocaleString('en-IN')}</span>
             </div>
           </div>
         `).join('')}
       </div>
 
       <div class="flex justify-between items-center text-xs px-2">
-        <a href="/shop" class="text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-1.5">
+        <a href="/shop" class="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1.5">
           <i class="fas fa-arrow-left text-[10px]"></i> Continue Shopping
         </a>
         <button onclick="clearAll()" class="text-slate-400 hover:text-rose-600 font-medium">Clear All Items</button>
@@ -93,12 +93,12 @@ function renderCart() {
       
       <!-- Promo Code Box -->
       <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3">Have a promo code?</h4>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">Have a promo voucher?</h4>
         <div class="flex gap-2">
-          <input type="text" id="coupon-input" placeholder="e.g. WELCOME10" class="uppercase bg-slate-50 border border-slate-200 text-xs text-slate-800 rounded-xl px-3 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <input type="text" id="coupon-input" placeholder="e.g. WELCOME10" class="uppercase bg-slate-50 border border-slate-200 text-xs text-slate-800 font-mono font-bold rounded-xl px-3 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
           <button onclick="applyCoupon()" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shrink-0 transition-all">Apply</button>
         </div>
-        ${appliedCoupon ? `<p class="text-xs text-emerald-600 font-semibold mt-2 flex items-center gap-1"><i class="fas fa-check-circle"></i> Applied: ${appliedCoupon.code} ($${discount.toFixed(2)} off)</p>` : ''}
+        ${appliedCoupon ? `<p class="text-xs text-emerald-600 font-semibold mt-2 flex items-center gap-1"><i class="fas fa-check-circle"></i> Applied: ${appliedCoupon.code} (₹${discount.toLocaleString('en-IN')} discount)</p>` : ''}
       </div>
 
       <!-- Order Summary Card -->
@@ -108,35 +108,35 @@ function renderCart() {
         <div class="space-y-2 text-xs text-slate-600">
           <div class="flex justify-between">
             <span>Subtotal</span>
-            <span class="font-bold text-slate-900">$${subtotal.toFixed(2)}</span>
+            <span class="font-bold text-slate-900">₹${subtotal.toLocaleString('en-IN')}</span>
           </div>
           ${discount > 0 ? `
             <div class="flex justify-between text-emerald-600 font-semibold">
               <span>Promo Discount</span>
-              <span>-$${discount.toFixed(2)}</span>
+              <span>-₹${discount.toLocaleString('en-IN')}</span>
             </div>
           ` : ''}
           <div class="flex justify-between">
-            <span>Estimated Shipping</span>
-            <span class="font-bold text-slate-900">${shipping === 0 ? '<span class="text-emerald-600 uppercase font-extrabold">FREE</span>' : '$' + shipping.toFixed(2)}</span>
+            <span>Shipping across India</span>
+            <span class="font-bold text-slate-900">${shipping === 0 ? '<span class="text-emerald-600 uppercase font-extrabold">FREE</span>' : '₹' + shipping}</span>
           </div>
           <div class="flex justify-between">
-            <span>Estimated Tax (8%)</span>
-            <span class="font-bold text-slate-900">$${tax.toFixed(2)}</span>
+            <span>Applicable GST (18%)</span>
+            <span class="font-bold text-slate-900">₹${tax.toLocaleString('en-IN')}</span>
           </div>
         </div>
 
         <div class="border-t border-slate-100 pt-4 flex justify-between items-baseline">
-          <span class="text-sm font-black text-slate-900">Total</span>
-          <span class="text-2xl font-black text-slate-900">$${total.toFixed(2)}</span>
+          <span class="text-sm font-black text-slate-900">Total Amount</span>
+          <span class="text-2xl font-black text-slate-900">₹${total.toLocaleString('en-IN')}</span>
         </div>
 
-        <a href="/checkout" class="block w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-center font-bold text-sm shadow-xl shadow-indigo-600/20 transition-all">
+        <a href="/checkout" class="block w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-center font-black text-sm shadow-xl shadow-blue-600/20 transition-all">
           Proceed to Checkout
         </a>
 
         <div class="text-[11px] text-center text-slate-400">
-          <i class="fas fa-lock mr-1"></i> Guaranteed safe & secure checkout
+          <i class="fas fa-shield-halved text-emerald-600 mr-1"></i> 100% Safe & Secure Indian Payment Gateway
         </div>
       </div>
 
@@ -155,7 +155,7 @@ function removeItem(id) {
 }
 
 function clearAll() {
-  if (confirm('Are you sure you want to remove all items from your cart?')) {
+  if (confirm('Clear all items from your cart?')) {
     Cart.clear();
     renderCart();
   }

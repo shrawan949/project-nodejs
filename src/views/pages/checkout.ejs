@@ -1,5 +1,5 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-  <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-8">Checkout</h1>
+  <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-8">Express Checkout</h1>
 
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
     
@@ -7,47 +7,47 @@
     <div class="lg:col-span-7">
       <form id="checkout-form" onsubmit="handlePlaceOrder(event)" class="space-y-8">
         
-        <!-- Step 1: Shipping Address -->
+        <!-- Step 1: Delivery Address in India -->
         <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-4">
           <div class="flex items-center gap-3 mb-2">
-            <span class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">1</span>
-            <h3 class="text-base font-bold text-slate-900">Shipping Information</h3>
+            <span class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black">1</span>
+            <h3 class="text-base font-black text-slate-900">Delivery Address</h3>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div class="sm:col-span-2">
-              <label class="block font-semibold text-slate-700 mb-1">Full Recipient Name</label>
-              <input type="text" name="fullName" required placeholder="John Doe" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 mb-1">Full Name</label>
+              <input type="text" name="fullName" required placeholder="Shrawan Ambarte" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <div class="sm:col-span-2">
-              <label class="block font-semibold text-slate-700 mb-1">Street Address</label>
-              <input type="text" name="street" required placeholder="123 Innovation Way, Apt 4B" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 mb-1">Flat, House no., Building, Apartment</label>
+              <input type="text" name="street" required placeholder="Flat 402, Lotus Residency, MG Road" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">City</label>
-              <input type="text" name="city" required placeholder="San Francisco" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 mb-1">City / Town</label>
+              <input type="text" name="city" required placeholder="Mumbai" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">State / Province</label>
-              <input type="text" name="state" required placeholder="CA" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 mb-1">State</label>
+              <input type="text" name="state" required placeholder="Maharashtra" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Postal / ZIP Code</label>
-              <input type="text" name="postalCode" required placeholder="94105" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 mb-1">PIN Code (6 digits)</label>
+              <input type="text" name="postalCode" required pattern="[0-9]{6}" placeholder="400001" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Country</label>
-              <input type="text" name="country" required value="United States" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 mb-1">Country</label>
+              <input type="text" name="country" required value="India" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-500">
             </div>
 
             <div class="sm:col-span-2">
-              <label class="block font-semibold text-slate-700 mb-1">Phone Number</label>
-              <input type="tel" name="phone" required placeholder="+1 (555) 000-1234" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 mb-1">Mobile Number for Delivery Updates</label>
+              <input type="tel" name="phone" required placeholder="+91 98765 43210" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
           </div>
         </div>
@@ -55,17 +55,31 @@
         <!-- Step 2: Payment Method -->
         <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-4">
           <div class="flex items-center gap-3 mb-2">
-            <span class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">2</span>
-            <h3 class="text-base font-bold text-slate-900">Payment Selection</h3>
+            <span class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black">2</span>
+            <h3 class="text-base font-black text-slate-900">Payment Options</h3>
           </div>
 
           <div class="space-y-3">
-            <label class="flex items-center justify-between p-4 rounded-2xl border border-indigo-200 bg-indigo-50/40 cursor-pointer">
+            <label class="flex items-center justify-between p-4 rounded-2xl border border-blue-200 bg-blue-50/50 cursor-pointer">
               <div class="flex items-center gap-3">
-                <input type="radio" name="paymentMethod" value="Credit Card" checked class="text-indigo-600 focus:ring-indigo-500">
-                <span class="text-xs font-bold text-slate-900">Credit / Debit Card (Instant Approval)</span>
+                <input type="radio" name="paymentMethod" value="UPI" checked class="text-blue-600 focus:ring-blue-500">
+                <div>
+                  <span class="text-xs font-black text-slate-900">UPI (Google Pay, PhonePe, Paytm, QR)</span>
+                  <p class="text-[11px] text-slate-500">Fastest checkout with zero transaction fees</p>
+                </div>
               </div>
-              <div class="flex gap-2 text-slate-600 text-sm">
+              <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Instant</span>
+            </label>
+
+            <label class="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer">
+              <div class="flex items-center gap-3">
+                <input type="radio" name="paymentMethod" value="Credit Card" class="text-blue-600 focus:ring-blue-500">
+                <div>
+                  <span class="text-xs font-black text-slate-900">Credit / Debit Cards (Visa, MasterCard, RuPay)</span>
+                  <p class="text-[11px] text-slate-500">Avail 10% instant discount on HDFC / ICICI</p>
+                </div>
+              </div>
+              <div class="flex gap-1 text-slate-500 text-xs">
                 <i class="fab fa-cc-visa"></i>
                 <i class="fab fa-cc-mastercard"></i>
               </div>
@@ -73,8 +87,11 @@
 
             <label class="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer">
               <div class="flex items-center gap-3">
-                <input type="radio" name="paymentMethod" value="Cash on Delivery" class="text-indigo-600 focus:ring-indigo-500">
-                <span class="text-xs font-bold text-slate-900">Cash on Delivery</span>
+                <input type="radio" name="paymentMethod" value="Cash on Delivery" class="text-blue-600 focus:ring-blue-500">
+                <div>
+                  <span class="text-xs font-black text-slate-900">Cash on Delivery (Pay upon delivery)</span>
+                  <p class="text-[11px] text-slate-500">Pay cash or UPI to courier executive</p>
+                </div>
               </div>
               <i class="fas fa-hand-holding-dollar text-slate-400 text-sm"></i>
             </label>
@@ -82,9 +99,9 @@
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" id="submit-order-btn" class="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-2">
+        <button type="submit" id="submit-order-btn" class="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center gap-2">
           <i class="fas fa-lock text-xs"></i>
-          <span>Confirm & Complete Order</span>
+          <span>Place Order with Free Delivery</span>
         </button>
 
       </form>
@@ -93,7 +110,7 @@
     <!-- Right Review Summary (5 cols) -->
     <div class="lg:col-span-5">
       <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6 sticky top-28">
-        <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">Items in Order</h3>
+        <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">Order Breakdown</h3>
         
         <div id="checkout-items" class="space-y-3 max-h-72 overflow-y-auto pr-1">
           <!-- Populated by JS -->
@@ -121,12 +138,12 @@ function renderCheckoutReview() {
 
   itemsContainer.innerHTML = items.map(item => `
     <div class="flex items-center gap-3">
-      <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover bg-slate-100 shrink-0">
+      <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-xl object-contain p-1 bg-slate-50 border border-slate-100 shrink-0">
       <div class="flex-1 min-w-0">
         <p class="text-xs font-bold text-slate-900 truncate">${item.name}</p>
-        <p class="text-[11px] text-slate-400">Qty: ${item.qty} × $${item.price.toFixed(2)}</p>
+        <p class="text-[11px] text-slate-400">Qty: ${item.qty} × ₹${Number(item.price).toLocaleString('en-IN')}</p>
       </div>
-      <span class="text-xs font-bold text-slate-900">$${(item.price * item.qty).toFixed(2)}</span>
+      <span class="text-xs font-black text-slate-900">₹${Number(item.price * item.qty).toLocaleString('en-IN')}</span>
     </div>
   `).join('');
 
@@ -140,33 +157,33 @@ function renderCheckoutReview() {
     } catch {}
   }
 
-  const shipping = subtotal > 100 ? 0 : 10;
+  const shipping = subtotal > 999 ? 0 : 99;
   const taxable = Math.max(0, subtotal - discount);
-  const tax = Number((taxable * 0.08).toFixed(2));
+  const tax = Number((taxable * 0.18).toFixed(2));
   const total = Number((taxable + tax + shipping).toFixed(2));
 
   pricingContainer.innerHTML = `
     <div class="flex justify-between">
       <span>Subtotal</span>
-      <span class="font-bold text-slate-900">$${subtotal.toFixed(2)}</span>
+      <span class="font-bold text-slate-900">₹${subtotal.toLocaleString('en-IN')}</span>
     </div>
     ${discount > 0 ? `
       <div class="flex justify-between text-emerald-600 font-semibold">
-        <span>Discount</span>
-        <span>-$${discount.toFixed(2)}</span>
+        <span>Coupon Discount</span>
+        <span>-₹${discount.toLocaleString('en-IN')}</span>
       </div>
     ` : ''}
     <div class="flex justify-between">
-      <span>Shipping</span>
-      <span class="font-bold text-slate-900">${shipping === 0 ? 'FREE' : '$' + shipping.toFixed(2)}</span>
+      <span>Delivery</span>
+      <span class="font-bold text-slate-900">${shipping === 0 ? '<span class="text-emerald-600 uppercase font-extrabold">FREE</span>' : '₹' + shipping}</span>
     </div>
     <div class="flex justify-between">
-      <span>Estimated Tax</span>
-      <span class="font-bold text-slate-900">$${tax.toFixed(2)}</span>
+      <span>GST (18%)</span>
+      <span class="font-bold text-slate-900">₹${tax.toLocaleString('en-IN')}</span>
     </div>
     <div class="border-t border-slate-100 pt-3 flex justify-between items-baseline text-sm">
-      <span class="font-black text-slate-900">Total Due</span>
-      <span class="text-xl font-black text-slate-900">$${total.toFixed(2)}</span>
+      <span class="font-black text-slate-900">Final Total</span>
+      <span class="text-2xl font-black text-slate-900">₹${total.toLocaleString('en-IN')}</span>
     </div>
   `;
 }
@@ -175,7 +192,7 @@ async function handlePlaceOrder(e) {
   e.preventDefault();
   const btn = document.getElementById('submit-order-btn');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing Order...';
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Confirming Order...';
 
   const form = e.target;
   const formData = new FormData(form);
@@ -214,14 +231,14 @@ async function handlePlaceOrder(e) {
       Cart.clear();
       location.href = `/order-success/${result.order._id}`;
     } else {
-      Cart.showToast(result.message || 'Error creating order', 'error');
+      Cart.showToast(result.message || 'Order placement failed', 'error');
       btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-lock text-xs"></i> <span>Confirm & Complete Order</span>';
+      btn.innerHTML = '<i class="fas fa-lock text-xs"></i> <span>Place Order with Free Delivery</span>';
     }
   } catch (err) {
-    Cart.showToast('Network error while processing order', 'error');
+    Cart.showToast('Network error processing order', 'error');
     btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-lock text-xs"></i> <span>Confirm & Complete Order</span>';
+    btn.innerHTML = '<i class="fas fa-lock text-xs"></i> <span>Place Order with Free Delivery</span>';
   }
 }
 

@@ -1,5 +1,9 @@
+import mongoose from 'mongoose';
 import User from '../models/User.js';
 import { sendTokenResponse } from '../utils/generateToken.js';
+import { sampleUsers } from '../config/sampleData.js';
+
+const isDBConnected = () => mongoose.connection.readyState === 1;
 
 // @desc    Register a new user
 // @route   POST /api/v1/auth/register
@@ -9,6 +13,24 @@ export const register = async (req, res, next) => {
 
     if (!name || !email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
+    }
+
+    if (!isDBConnected()) {
+      const mockUser = {
+        _id: 'mock_user_' + Date.now(),
+        name,
+        email,
+        role: 'customer',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+        isActive: true,
+      };
+      const { token, user: safeUser } = sendTokenResponse(mockUser, 201, res);
+      return res.status(201).json({
+        success: true,
+        message: 'Account created successfully (In-Memory)',
+        token,
+        user: safeUser,
+      });
     }
 
     const existingUser = await User.findOne({ email });
@@ -47,6 +69,31 @@ export const login = async (req, res, next) => {
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide both email and password' });
+    }
+
+    if (!isDBConnected()) {
+      // Find matching mock user
+      let matched = sampleUsers.find(
+        (u) => u.email.toLowerCase() === email.toLowerCase()
+      );
+      if (!matched) {
+        matched = {
+          _id: 'mock_' + (email.includes('admin') ? 'admin' : 'cust'),
+          name: email.includes('admin') ? 'Nexus Admin' : 'Customer',
+          email,
+          role: email.includes('admin') ? 'admin' : 'customer',
+          avatar: sampleUsers[0].avatar,
+          isActive: true,
+        };
+      }
+
+      const { token, user: safeUser } = sendTokenResponse(matched, 200, res);
+      return res.status(200).json({
+        success: true,
+        message: 'Logged in successfully (Demo Mode)',
+        token,
+        user: safeUser,
+      });
     }
 
     const user = await User.findOne({ email }).select('+password');
@@ -105,6 +152,10 @@ export const getMe = async (req, res) => {
 // @route   PUT /api/v1/auth/updatedetails
 export const updateDetails = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      return res.status(200).json({ success: true, message: 'Profile updated' });
+    }
+
     const fieldsToUpdate = {
       name: req.body.name,
       phone: req.body.phone,

@@ -3,14 +3,14 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-8 border-b border-slate-200/80 gap-4">
     <div>
       <nav class="flex items-center gap-2 text-xs text-slate-400 font-semibold mb-1">
-        <a href="/admin" class="hover:text-indigo-600">Admin</a>
+        <a href="/admin" class="hover:text-blue-600">Admin</a>
         <span>/</span>
-        <span class="text-slate-700">Products</span>
+        <span class="text-slate-700">Inventory</span>
       </nav>
       <h1 class="text-3xl font-black text-slate-900 tracking-tight">Product Catalog Management</h1>
     </div>
 
-    <button @click="addModal = true" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/20 flex items-center gap-2 transition-all">
+    <button @click="addModal = true" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/20 flex items-center gap-2 transition-all">
       <i class="fas fa-plus"></i>
       <span>Add New Product</span>
     </button>
@@ -22,11 +22,11 @@
       <table class="w-full text-left text-xs">
         <thead class="bg-slate-50 text-slate-400 uppercase tracking-wider border-b border-slate-100">
           <tr>
-            <th class="py-3 px-4">Item</th>
-            <th class="py-3 px-4">Category</th>
-            <th class="py-3 px-4">Price</th>
-            <th class="py-3 px-4">Inventory</th>
-            <th class="py-3 px-4">Rating</th>
+            <th class="py-3 px-4">Item & Brand</th>
+            <th class="py-3 px-4">Department</th>
+            <th class="py-3 px-4">Price (INR)</th>
+            <th class="py-3 px-4">Stock Status</th>
+            <th class="py-3 px-4">Customer Rating</th>
             <th class="py-3 px-4 text-right">Actions</th>
           </tr>
         </thead>
@@ -34,14 +34,14 @@
           <% products.forEach(product => { %>
             <tr class="hover:bg-slate-50/70 transition-colors">
               <td class="py-3.5 px-4 flex items-center gap-3">
-                <img src="<%= product.images[0] %>" alt="" class="w-10 h-10 rounded-xl object-cover bg-slate-100 shrink-0">
+                <img src="<%= product.images[0] %>" alt="" class="w-10 h-10 rounded-xl object-contain p-1 bg-slate-50 border border-slate-100 shrink-0">
                 <div>
-                  <a href="/product/<%= product.slug %>" class="font-bold text-slate-900 hover:text-indigo-600"><%= product.name %></a>
-                  <p class="text-[10px] text-slate-400">SKU: <%= product.sku %></p>
+                  <a href="/product/<%= product.slug %>" class="font-bold text-slate-900 hover:text-blue-600"><%= product.name %></a>
+                  <p class="text-[10px] text-slate-400">Brand: <%= product.brand %> • SKU: <%= product.sku %></p>
                 </div>
               </td>
               <td class="py-3.5 px-4 text-slate-600"><%= product.category %></td>
-              <td class="py-3.5 px-4 font-bold text-slate-900">$<%= product.price.toFixed(2) %></td>
+              <td class="py-3.5 px-4 font-black text-slate-900">₹<%= Number(product.price).toLocaleString('en-IN') %></td>
               <td class="py-3.5 px-4">
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold <%= product.countInStock > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' %>">
                   <%= product.countInStock %> in stock
@@ -74,47 +74,55 @@
       <form onsubmit="handleCreateProduct(event)" class="space-y-4 text-xs">
         <div>
           <label class="block font-bold text-slate-700 mb-1">Product Title</label>
-          <input type="text" name="name" required placeholder="e.g. Precision Studio Mic" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <input type="text" name="name" required placeholder="e.g. Samsung 55 Inch Crystal 4K UHD TV" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Price ($)</label>
-            <input type="number" step="0.01" name="price" required placeholder="149.99" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <label class="block font-bold text-slate-700 mb-1">Brand</label>
+            <input type="text" name="brand" required placeholder="Samsung / Puma / SS" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Stock Count</label>
-            <input type="number" name="countInStock" required placeholder="50" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <label class="block font-bold text-slate-700 mb-1">Price (₹ INR)</label>
+            <input type="number" step="1" name="price" required placeholder="49990" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
         </div>
 
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Category</label>
-          <select name="category" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="Electronics & Gadgets">Electronics & Gadgets</option>
-            <option value="Fashion & Apparel">Fashion & Apparel</option>
-            <option value="Home & Kitchen">Home & Kitchen</option>
-            <option value="Fitness & Outdoors">Fitness & Outdoors</option>
-          </select>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Stock Count</label>
+            <input type="number" name="countInStock" required placeholder="25" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Category</label>
+            <select name="category" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="TVs & Appliances">TVs & Appliances</option>
+              <option value="Smartphones & Tablets">Smartphones & Tablets</option>
+              <option value="Puma & Footwear">Puma & Footwear</option>
+              <option value="Sportswear & Apparel">Sportswear & Apparel</option>
+              <option value="Sports & Fitness Gear">Sports & Fitness Gear</option>
+              <option value="Laptops & Tech">Laptops & Tech</option>
+            </select>
+          </div>
         </div>
 
         <div>
           <label class="block font-bold text-slate-700 mb-1">Image URL</label>
-          <input type="url" name="images" required placeholder="https://images.unsplash.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <input type="url" name="images" required placeholder="https://images.unsplash.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Description</label>
-          <textarea name="description" required rows="3" placeholder="Enter detailed product description..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          <label class="block font-bold text-slate-700 mb-1">Product Description</label>
+          <textarea name="description" required rows="3" placeholder="Enter complete specifications and feature details..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
         </div>
 
         <div class="flex items-center gap-2 pt-2">
-          <input type="checkbox" id="isFeatured" name="isFeatured" value="true" class="rounded text-indigo-600 focus:ring-indigo-500">
-          <label for="isFeatured" class="font-semibold text-slate-700">Mark as Featured Product</label>
+          <input type="checkbox" id="isFeatured" name="isFeatured" value="true" class="rounded text-blue-600 focus:ring-blue-500">
+          <label for="isFeatured" class="font-semibold text-slate-700">Display in Featured Showcase on Homepage</label>
         </div>
 
-        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all">
-          Create Product
+        <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition-all">
+          Create & Publish Listing
         </button>
       </form>
 

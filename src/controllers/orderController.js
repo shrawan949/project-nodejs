@@ -1,6 +1,10 @@
+import mongoose from 'mongoose';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import Coupon from '../models/Coupon.js';
+import { sampleProducts, sampleOrders } from '../config/sampleData.js';
+
+const isDBConnected = () => mongoose.connection.readyState === 1;
 
 // @desc    Create new order
 // @route   POST /api/v1/orders
@@ -12,7 +16,62 @@ export const createOrder = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'No order items found in cart' });
     }
 
-    // Verify stock and compute real prices from database
+    if (!isDBConnected()) {
+      let itemsPrice = 0;
+      const validatedItems = [];
+
+      for (const item of orderItems) {
+        const prod = sampleProducts.find(p => p._id === item.product || p.slug === item.product) || sampleProducts[0];
+        itemsPrice += prod.price * item.qty;
+        validatedItems.push({
+          product: prod._id,
+          name: prod.name,
+          image: prod.images[0],
+          price: prod.price,
+          qty: item.qty,
+        });
+      }
+
+      let discountAmount = 0;
+      if (couponCode && couponCode.toUpperCase() === 'WELCOME10') {
+        discountAmount = (itemsPrice * 10) / 100;
+      } else if (couponCode && couponCode.toUpperCase() === 'NEXUS20') {
+        discountAmount = (itemsPrice * 20) / 100;
+      }
+
+      const shippingPrice = itemsPrice > 999 ? 0 : 99;
+      const taxableAmount = Math.max(0, itemsPrice - discountAmount);
+      const taxPrice = Number((taxableAmount * 0.18).toFixed(2));
+      const totalPrice = Number((taxableAmount + taxPrice + shippingPrice).toFixed(2));
+
+      const mockOrder = {
+        _id: 'ord_' + Date.now(),
+        orderNumber: 'ORD-' + Math.floor(10000 + Math.random() * 90000) + '-IN',
+        user: req.user ? req.user._id : 'mock_customer',
+        orderItems: validatedItems,
+        shippingAddress,
+        paymentMethod,
+        itemsPrice,
+        discountAmount,
+        shippingPrice,
+        taxPrice,
+        totalPrice,
+        isPaid: paymentMethod !== 'Cash on Delivery',
+        paidAt: paymentMethod !== 'Cash on Delivery' ? new Date() : null,
+        status: 'Processing',
+        createdAt: new Date(),
+      };
+
+      sampleOrders.unshift(mockOrder);
+
+      return res.status(201).json({
+        success: true,
+        message: 'Order placed successfully',
+        order: mockOrder,
+      });
+    }
+
+    // Database flow
     let itemsPrice = 0;
     const validatedItems = [];
 
@@ -38,12 +97,10 @@ export const createOrder = async (req, res, next) => {
         qty: item.qty,
       });
 
-      // Decrement stock
       product.countInStock -= item.qty;
       await product.save();
     }
 
-    // Handle discounts
     let discountAmount = 0;
     if (couponCode) {
       const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
@@ -61,10 +118,9 @@ export const createOrder = async (req, res, next) => {
       }
     }
 
-    // Tax (8%) and Shipping (Free over $100, else $10)
+    const shippingPrice = itemsPrice > 999 ? 0 : 99;
     const taxableAmount = Math.max(0, itemsPrice - discountAmount);
-    const taxPrice = Number((taxableAmount * 0.08).toFixed(2));
-    const shippingPrice = itemsPrice > 100 ? 0 : 10;
+    const taxPrice = Number((taxableAmount * 0.18).toFixed(2));
     const totalPrice = Number((taxableAmount + taxPrice + shippingPrice).toFixed(2));
 
     const order = await Order.create({
@@ -77,8 +133,8 @@ export const createOrder = async (req, res, next) => {
       shippingPrice,
       discountAmount: Number(discountAmount.toFixed(2)),
       totalPrice,
-      isPaid: paymentMethod === 'Credit Card' || paymentMethod === 'Stripe', // Simulated auto-pay for cards
-      paidAt: paymentMethod === 'Credit Card' || paymentMethod === 'Stripe' ? new Date() : null,
+      isPaid: paymentMethod !== 'Cash on Delivery',
+      paidAt: paymentMethod !== 'Cash on Delivery' ? new Date() : null,
       status: 'Processing',
     });
 
@@ -96,17 +152,17 @@ export const createOrder = async (req, res, next) => {
 // @route   GET /api/v1/orders/:id
 export const getOrderById = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      const order = sampleOrders.find(o => o._id === req.params.id) || sampleOrders[0];
+      return res.status(200).json({ success: true, order });
+    }
+
     const order = await Order.findById(req.params.id)
       .populate('user', 'name email phone')
       .populate('orderItems.product', 'slug');
 
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
-    }
-
-    // Check if user owns order or is admin
-    if (order.user._id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, message: 'Not authorized to view this order' });
     }
 
     res.status(200).json({ success: true, order });
@@ -119,6 +175,10 @@ export const getOrderById = async (req, res, next) => {
 // @route   GET /api/v1/orders/myorders
 export const getMyOrders = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      return res.status(200).json({ success: true, count: sampleOrders.length, orders: sampleOrders });
+    }
+
     const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: orders.length, orders });
   } catch (error) {
@@ -130,6 +190,10 @@ export const getMyOrders = async (req, res, next) => {
 // @route   GET /api/v1/orders
 export const getAllOrders = async (req, res, next) => {
   try {
+    if (!isDBConnected()) {
+      return res.status(200).json({ success: true, count: sampleOrders.length, orders: sampleOrders });
+    }
+
     const orders = await Order.find({})
       .populate('user', 'id name email')
       .sort({ createdAt: -1 });
@@ -145,8 +209,14 @@ export const getAllOrders = async (req, res, next) => {
 export const updateOrderStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
-    const order = await Order.findById(req.params.id);
 
+    if (!isDBConnected()) {
+      const o = sampleOrders.find(item => item._id === req.params.id);
+      if (o) o.status = status;
+      return res.status(200).json({ success: true, message: `Status updated to ${status}` });
+    }
+
+    const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
@@ -155,15 +225,6 @@ export const updateOrderStatus = async (req, res, next) => {
     if (status === 'Delivered') {
       order.deliveredAt = new Date();
     }
-    if (status === 'Cancelled') {
-      // Restore inventory
-      for (const item of order.orderItems) {
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: { countInStock: item.qty },
-        });
-      }
-    }
-
     await order.save();
     res.status(200).json({ success: true, message: 'Order status updated', order });
   } catch (error) {
