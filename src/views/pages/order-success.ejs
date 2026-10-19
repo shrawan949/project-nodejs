@@ -1,0 +1,85 @@
+<div class="max-w-3xl mx-auto px-4 py-16 text-center">
+  <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl shadow-lg mb-6">
+    <i class="fas fa-check"></i>
+  </div>
+  
+  <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">Order Confirmed</span>
+  <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">Thank you for your order!</h1>
+  <p class="text-xs sm:text-sm text-slate-500 mt-2 max-w-md mx-auto">
+    We have received your order and are preparing it for express dispatch. A confirmation receipt has been sent to your registered account.
+  </p>
+
+  <!-- Order Receipt Summary Card -->
+  <div class="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm text-left mt-10 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 gap-2">
+      <div>
+        <span class="text-xs text-slate-400">Order Reference</span>
+        <p class="text-base font-black text-slate-900"><%= order.orderNumber %></p>
+      </div>
+      <div class="sm:text-right">
+        <span class="text-xs text-slate-400">Payment Status</span>
+        <p class="text-sm font-bold <%= order.isPaid ? 'text-emerald-600' : 'text-amber-600' %>">
+          <%= order.isPaid ? 'Paid with ' + order.paymentMethod : 'Payment Pending' %>
+        </p>
+      </div>
+    </div>
+
+    <!-- Items List -->
+    <div class="space-y-3">
+      <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Purchased Items</h4>
+      <% order.orderItems.forEach(item => { %>
+        <div class="flex items-center gap-3">
+          <img src="<%= item.image %>" alt="<%= item.name %>" class="w-12 h-12 rounded-xl object-cover bg-slate-100 shrink-0">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-slate-900 truncate"><%= item.name %></p>
+            <p class="text-[11px] text-slate-400">Qty: <%= item.qty %> × $<%= item.price.toFixed(2) %></p>
+          </div>
+          <span class="text-xs font-bold text-slate-900">$<%= (item.price * item.qty).toFixed(2) %></span>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- Pricing Breakdown -->
+    <div class="border-t border-slate-100 pt-4 space-y-2 text-xs text-slate-600">
+      <div class="flex justify-between">
+        <span>Items Subtotal</span>
+        <span class="font-bold text-slate-900">$<%= order.itemsPrice.toFixed(2) %></span>
+      </div>
+      <% if (order.discountAmount > 0) { %>
+        <div class="flex justify-between text-emerald-600 font-semibold">
+          <span>Promo Discount</span>
+          <span>-$<%= order.discountAmount.toFixed(2) %></span>
+        </div>
+      <% } %>
+      <div class="flex justify-between">
+        <span>Shipping</span>
+        <span class="font-bold text-slate-900"><%= order.shippingPrice === 0 ? 'FREE' : '$' + order.shippingPrice.toFixed(2) %></span>
+      </div>
+      <div class="flex justify-between">
+        <span>Sales Tax</span>
+        <span class="font-bold text-slate-900">$<%= order.taxPrice.toFixed(2) %></span>
+      </div>
+      <div class="border-t border-slate-100 pt-3 flex justify-between items-baseline text-sm">
+        <span class="font-black text-slate-900">Total Paid</span>
+        <span class="text-xl font-black text-slate-900">$<%= order.totalPrice.toFixed(2) %></span>
+      </div>
+    </div>
+
+    <!-- Shipping Address Summary -->
+    <div class="border-t border-slate-100 pt-4 text-xs text-slate-500">
+      <p class="font-bold text-slate-700">Delivery Destination:</p>
+      <p><%= order.shippingAddress.fullName %></p>
+      <p><%= order.shippingAddress.street %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> <%= order.shippingAddress.postalCode %></p>
+      <p><%= order.shippingAddress.country %> • <%= order.shippingAddress.phone %></p>
+    </div>
+  </div>
+
+  <div class="mt-8 flex justify-center gap-4">
+    <a href="/my-orders" class="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition-all">
+      View All My Orders
+    </a>
+    <a href="/shop" class="px-6 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition-all">
+      Continue Shopping
+    </a>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  
+  <div class="flex items-center justify-between pb-8 border-b border-slate-200/80">
+    <div>
+      <nav class="flex items-center gap-2 text-xs text-slate-400 font-semibold mb-1">
+        <a href="/admin" class="hover:text-indigo-600">Admin</a>
+        <span>/</span>
+        <span class="text-slate-700">Users</span>
+      </nav>
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight">Customer Accounts Management</h1>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm mt-8 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50 text-slate-400 uppercase tracking-wider border-b border-slate-100">
+          <tr>
+            <th class="py-3 px-4">User</th>
+            <th class="py-3 px-4">Email</th>
+            <th class="py-3 px-4">Role</th>
+            <th class="py-3 px-4">Status</th>
+            <th class="py-3 px-4">Joined</th>
+            <th class="py-3 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium">
+          <% users.forEach(u => { %>
+            <tr class="hover:bg-slate-50/70 transition-colors">
+              <td class="py-3.5 px-4 flex items-center gap-3">
+                <img src="<%= u.avatar %>" alt="" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                <span class="font-bold text-slate-900"><%= u.name %></span>
+              </td>
+              <td class="py-3.5 px-4 text-slate-600"><%= u.email %></td>
+              <td class="py-3.5 px-4">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold <%= u.role === 'admin' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700' %>">
+                  <%= u.role.toUpperCase() %>
+                </span>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold <%= u.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' %>">
+                  <%= u.isActive ? 'Active' : 'Inactive' %>
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-slate-400"><%= new Date(u.createdAt).toLocaleDateString() %></td>
+              <td class="py-3.5 px-4 text-right">
+                <button onclick="toggleRole('<%= u._id %>', '<%= u.role === 'admin' ? 'customer' : 'admin' %>')" 
+                        class="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-[10px] font-bold transition-colors">
+                  Make <%= u.role === 'admin' ? 'Customer' : 'Admin' %>
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+async function toggleRole(id, newRole) {
+  if (!confirm(`Change user role to ${newRole}?`)) return;
+  try {
+    const res = await fetch(`/api/v1/users/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: newRole }),
+    });
+    const result = await res.json();
+    if (res.ok) {
+      Cart.showToast('User role updated', 'success');
+      setTimeout(() => location.reload(), 500);
+    } else {
+      Cart.showToast(result.message || 'Error updating user role', 'error');
+    }
+  } catch {
+    Cart.showToast('Network error', 'error');
+  }
+}
+</script>

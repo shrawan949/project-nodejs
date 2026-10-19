@@ -1,0 +1,228 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10" x-data="{ mainImage: '<%= product.images[0] %>', qty: 1 }">
+  
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-xs text-slate-400 font-semibold mb-8">
+    <a href="/" class="hover:text-indigo-600">Home</a>
+    <span>/</span>
+    <a href="/shop" class="hover:text-indigo-600">Catalog</a>
+    <span>/</span>
+    <a href="/shop?category=<%= encodeURIComponent(product.category) %>" class="hover:text-indigo-600"><%= product.category %></a>
+    <span>/</span>
+    <span class="text-slate-700 truncate max-w-xs"><%= product.name %></span>
+  </nav>
+
+  <!-- Product Primary Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
+    
+    <!-- Image Gallery (Col 6) -->
+    <div class="lg:col-span-6 space-y-4">
+      <div class="aspect-square bg-white rounded-3xl border border-slate-200/80 overflow-hidden p-6 flex items-center justify-center shadow-sm">
+        <img :src="mainImage" alt="<%= product.name %>" class="w-full h-full object-contain transition-all duration-300">
+      </div>
+      <% if (product.images.length > 1) { %>
+        <div class="flex gap-3 overflow-x-auto pb-2">
+          <% product.images.forEach(img => { %>
+            <button @click="mainImage = '<%= img %>'" 
+                    class="w-20 h-20 rounded-2xl bg-white border border-slate-200/80 overflow-hidden p-1.5 focus:ring-2 focus:ring-indigo-500 hover:border-indigo-400 shrink-0 transition-all">
+              <img src="<%= img %>" alt="thumb" class="w-full h-full object-cover rounded-xl">
+            </button>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Product Purchasing Info (Col 6) -->
+    <div class="lg:col-span-6 space-y-6">
+      
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2.5 py-0.5 rounded-full"><%= product.category %></span>
+          <span class="text-xs text-slate-400">SKU: <%= product.sku %></span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= product.name %></h1>
+        
+        <!-- Ratings -->
+        <div class="flex items-center gap-3 mt-3">
+          <div class="flex text-amber-400 text-xs gap-1">
+            <% for (let i = 1; i <= 5; i++) { %>
+              <i class="fas fa-star <%= i <= Math.round(product.rating) ? '' : 'text-slate-200' %>"></i>
+            <% } %>
+          </div>
+          <span class="text-xs font-bold text-slate-800"><%= product.rating.toFixed(1) %></span>
+          <span class="text-xs text-slate-400">• <%= product.numReviews %> verified reviews</span>
+        </div>
+      </div>
+
+      <!-- Price -->
+      <div class="flex items-baseline gap-3 p-4 bg-slate-100/60 rounded-2xl border border-slate-200/50">
+        <span class="text-3xl font-black text-slate-900">$<%= product.price.toFixed(2) %></span>
+        <% if (product.compareAtPrice && product.compareAtPrice > product.price) { %>
+          <span class="text-sm text-slate-400 line-through">$<%= product.compareAtPrice.toFixed(2) %></span>
+          <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full">
+            Save <%= Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100) %>%
+          </span>
+        <% } %>
+      </div>
+
+      <!-- Description -->
+      <p class="text-sm text-slate-600 leading-relaxed">
+        <%= product.description %>
+      </p>
+
+      <!-- Inventory status -->
+      <div class="flex items-center gap-2 text-xs font-bold">
+        <% if (product.countInStock > 0) { %>
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <span class="text-emerald-700">In Stock (<%= product.countInStock %> units available)</span>
+        <% } else { %>
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+          <span class="text-rose-700">Out of Stock</span>
+        <% } %>
+      </div>
+
+      <!-- Actions -->
+      <% if (product.countInStock > 0) { %>
+        <div class="space-y-3 pt-2">
+          <div class="flex items-center gap-4">
+            <!-- Qty Counter -->
+            <div class="flex items-center border border-slate-200 bg-white rounded-2xl p-1 shadow-sm">
+              <button @click="if (qty > 1) qty--" class="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-600 text-xs">
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="w-12 text-center text-sm font-bold text-slate-800" x-text="qty"></span>
+              <button @click="if (qty < <%= product.countInStock %>) qty++" class="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-600 text-xs">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+
+            <!-- Add to Cart Button -->
+            <button @click="Cart.addItem({
+                      id: '<%= product._id %>',
+                      name: '<%= product.name.replace(/'/g, '') %>',
+                      price: <%= product.price %>,
+                      image: '<%= product.images[0] %>',
+                      slug: '<%= product.slug %>',
+                      countInStock: <%= product.countInStock %>
+                    }, qty)" 
+                    class="flex-1 py-3.5 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all">
+              <i class="fas fa-shopping-bag text-xs"></i>
+              <span>Add to Cart</span>
+            </button>
+          </div>
+
+          <a href="/cart" @click="Cart.addItem({
+                      id: '<%= product._id %>',
+                      name: '<%= product.name.replace(/'/g, '') %>',
+                      price: <%= product.price %>,
+                      image: '<%= product.images[0] %>',
+                      slug: '<%= product.slug %>',
+                      countInStock: <%= product.countInStock %>
+                    }, qty)" 
+             class="block w-full py-3.5 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-center font-bold text-sm shadow-md transition-all">
+            Buy Now
+          </a>
+        </div>
+      <% } %>
+
+      <!-- Guarantees box -->
+      <div class="border-t border-slate-200/80 pt-6 grid grid-cols-2 gap-4 text-xs text-slate-500">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-rotate-left text-slate-400"></i>
+          <span>30-Day Free Returns</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-certificate text-slate-400"></i>
+          <span>100% Authentic Guarantee</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Customer Reviews Section -->
+  <section class="border-t border-slate-200/80 pt-16 mb-16">
+    <div class="max-w-3xl">
+      <h2 class="text-2xl font-black text-slate-900 mb-6">Customer Reviews (<%= product.numReviews %>)</h2>
+
+      <!-- Submit Review Form -->
+      <% if (typeof user !== 'undefined' && user) { %>
+        <form action="/api/v1/products/<%= product._id %>/reviews" method="POST" 
+              onsubmit="submitReview(event, this)"
+              class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4 mb-10">
+          <h3 class="text-sm font-bold text-slate-900">Write a Review</h3>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Rating</label>
+            <select name="rating" required class="bg-slate-50 border border-slate-200 text-xs font-bold rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="5">⭐⭐⭐⭐⭐ 5 - Exceptional</option>
+              <option value="4">⭐⭐⭐⭐ 4 - Great</option>
+              <option value="3">⭐⭐⭐ 3 - Average</option>
+              <option value="2">⭐⭐ 2 - Poor</option>
+              <option value="1">⭐ 1 - Terrible</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Your Feedback</label>
+            <textarea name="comment" required rows="3" placeholder="Share your experience with this product..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          </div>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all">
+            Submit Review
+          </button>
+        </form>
+      <% } else { %>
+        <div class="p-4 bg-slate-100 rounded-2xl text-xs text-slate-600 mb-8">
+          Please <a href="/login?redirect=/product/<%= product.slug %>" class="text-indigo-600 font-bold underline">sign in</a> to write a customer review.
+        </div>
+      <% } %>
+
+      <!-- Reviews List -->
+      <div class="space-y-4">
+        <% if (product.reviews && product.reviews.length > 0) { %>
+          <% product.reviews.forEach(review => { %>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/70 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900"><%= review.name %></span>
+                <span class="text-[11px] text-slate-400"><%= new Date(review.createdAt).toLocaleDateString() %></span>
+              </div>
+              <div class="flex text-amber-400 text-xs gap-0.5">
+                <% for (let i = 1; i <= 5; i++) { %>
+                  <i class="fas fa-star <%= i <= review.rating ? '' : 'text-slate-200' %>"></i>
+                <% } %>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed"><%= review.comment %></p>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p class="text-xs text-slate-400 italic">No reviews yet. Be the first to share your thoughts!</p>
+        <% } %>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<script>
+async function submitReview(e, form) {
+  e.preventDefault();
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (res.ok) {
+      Cart.showToast('Review submitted!', 'success');
+      setTimeout(() => location.reload(), 800);
+    } else {
+      Cart.showToast(result.message || 'Error submitting review', 'error');
+    }
+  } catch (err) {
+    Cart.showToast('Failed to submit review', 'error');
+  }
+}
+</script>
