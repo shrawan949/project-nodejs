@@ -7,14 +7,3 @@ data:
   NODE_ENV: "production"
   PORT: "5000"
   MONGO_URI: "mongodb://mongodb-service:27017/nexus_ecommerce"
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: nexus-secret
-  namespace: nexus-ecommerce
-type: Opaque
-stringData:
-  JWT_SECRET: "super_secret_jwt_key_nexus_ecommerce_2026_enterprise_production"
-  ADMIN_EMAIL: "admin@nexus-shop.com"
-  ADMIN_PASSWORD: "AdminSecure2026!"
