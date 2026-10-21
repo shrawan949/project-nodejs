@@ -57,7 +57,7 @@ app.use(cors({
     // Same-origin requests do not send an Origin header. Cross-origin browser
     // requests must match an explicit allow-list; never reflect arbitrary origins.
     if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-    return callback(new Error('Origin is not allowed by CORS'));
+    return callback(null, false);
   },
   credentials: true,
 }));
