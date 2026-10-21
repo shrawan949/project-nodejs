@@ -26,7 +26,7 @@ export const protect = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'nexus_secret_default_key');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     let user;
     if (!isDBConnected() || String(decoded.id).startsWith('mock_')) {
@@ -86,7 +86,7 @@ export const optionalAuth = async (req, res, next) => {
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'nexus_secret_default_key');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       let user;
       if (!isDBConnected() || String(decoded.id).startsWith('mock_')) {
         user = sampleUsers.find((u) => u._id === decoded.id) || sampleUsers[0];
