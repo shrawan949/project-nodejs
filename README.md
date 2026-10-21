@@ -81,10 +81,11 @@ npm start
 
 ---
 
-## 🔑 Demo Credentials
+## 🔐 Demo and Admin Accounts
 
-| Role | Email | Password |
-| :--- | :--- | :--- |
+Any sample accounts created by the development seeder are for local testing only. Set a unique `ADMIN_EMAIL` and strong `ADMIN_PASSWORD` in your private `.env` file before running locally. Never use demo credentials on a publicly reachable deployment, and do not share a production admin login.
+
+--- | :--- | :--- |
 | **Admin** | `admin@nexus-shop.com` | `AdminSecure2026!` |
 | **Customer** | `john@example.com` | `Customer123!` |
 
