@@ -704,7 +704,7 @@ const seedData = async () => {
 
     // ── Seed Users ──
     const admin = await User.create({
-      name: 'Nexus Admin', email: process.env.ADMIN_EMAIL || 'admin@nexus-shop.com',
+      name: 'Nexus Admin', email: process.env.ADMIN_EMAIL,
       password: process.env.ADMIN_PASSWORD, role: 'admin',
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
     });
