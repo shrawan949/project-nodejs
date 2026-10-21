@@ -1,5 +1,9 @@
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import User from '../models/User.js';
+import { sampleUsers } from '../config/sampleData.js';
+
+const isDBConnected = () => mongoose.connection.readyState === 1;
 
 // Protect routes - verify JWT token from Header or Cookie
 export const protect = async (req, res, next) => {
@@ -23,7 +27,13 @@ export const protect = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'nexus_secret_default_key');
-    const user = await User.findById(decoded.id);
+
+    let user;
+    if (!isDBConnected() || String(decoded.id).startsWith('mock_')) {
+      user = sampleUsers.find((u) => u._id === decoded.id) || sampleUsers[0];
+    } else {
+      user = await User.findById(decoded.id);
+    }
 
     if (!user || !user.isActive) {
       if (req.originalUrl.startsWith('/api')) {
@@ -77,7 +87,13 @@ export const optionalAuth = async (req, res, next) => {
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'nexus_secret_default_key');
-      const user = await User.findById(decoded.id);
+      let user;
+      if (!isDBConnected() || String(decoded.id).startsWith('mock_')) {
+        user = sampleUsers.find((u) => u._id === decoded.id) || sampleUsers[0];
+      } else {
+        user = await User.findById(decoded.id);
+      }
+
       if (user && user.isActive) {
         req.user = user;
         res.locals.user = user;

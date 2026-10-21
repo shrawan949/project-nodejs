@@ -1,7 +1,7 @@
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
   <div class="mb-8">
     <h1 class="text-3xl font-black text-slate-900 tracking-tight">My Order History</h1>
-    <p class="text-xs text-slate-500 mt-1">Review past orders and track current shipments</p>
+    <p class="text-xs text-slate-500 mt-1">Live fulfillment tracking for Samsung Appliances, Puma and Sports gear</p>
   </div>
 
   <% if (orders && orders.length > 0) { %>
@@ -26,7 +26,7 @@
               <span class="text-xs font-bold px-3 py-1 rounded-full border <%= statusColors[order.status] || 'bg-slate-100 text-slate-700' %>">
                 <%= order.status %>
               </span>
-              <span class="text-sm font-black text-slate-900">$<%= order.totalPrice.toFixed(2) %></span>
+              <span class="text-sm font-black text-slate-900">₹<%= Number(order.totalPrice).toLocaleString('en-IN') %></span>
             </div>
           </div>
 
@@ -34,10 +34,10 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <% order.orderItems.forEach(item => { %>
               <div class="flex items-center gap-3">
-                <img src="<%= item.image %>" alt="<%= item.name %>" class="w-14 h-14 rounded-2xl object-cover bg-slate-100 shrink-0">
+                <img src="<%= item.image %>" alt="<%= item.name %>" class="w-14 h-14 rounded-2xl object-contain p-1 bg-slate-50 border border-slate-100 shrink-0">
                 <div class="flex-1 min-w-0">
                   <p class="text-xs font-bold text-slate-900 truncate"><%= item.name %></p>
-                  <p class="text-[11px] text-slate-400">Qty: <%= item.qty %> × $<%= item.price.toFixed(2) %></p>
+                  <p class="text-[11px] text-slate-400">Qty: <%= item.qty %> × ₹<%= Number(item.price).toLocaleString('en-IN') %></p>
                 </div>
               </div>
             <% }) %>
@@ -45,8 +45,8 @@
 
           <!-- Delivery Address footer -->
           <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-slate-400 gap-2">
-            <span>Shipped to: <strong class="text-slate-600"><%= order.shippingAddress.fullName %></strong>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.country %></span>
-            <span>Payment: <strong class="text-slate-600"><%= order.paymentMethod %></strong> (<%= order.isPaid ? 'Paid' : 'Pending' %>)</span>
+            <span>Destination: <strong class="text-slate-700"><%= order.shippingAddress.fullName %></strong>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.country %></span>
+            <span>Method: <strong class="text-slate-700"><%= order.paymentMethod %></strong> (<%= order.isPaid ? 'PAID' : 'PENDING' %>)</span>
           </div>
 
         </div>
@@ -58,8 +58,8 @@
         <i class="fas fa-box-open"></i>
       </div>
       <h3 class="text-lg font-black text-slate-900">No orders placed yet</h3>
-      <p class="text-xs text-slate-400 mt-1 mb-6">When you place orders, they will appear here with live tracking.</p>
-      <a href="/shop" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all">
+      <p class="text-xs text-slate-400 mt-1 mb-6">Explore Samsung TVs, Washing Machines and Puma sportswear.</p>
+      <a href="/shop" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all">
         <span>Start Shopping</span>
         <i class="fas fa-arrow-right text-xs"></i>
       </a>
