@@ -9,11 +9,11 @@ services:
       NODE_ENV: production
       PORT: "5000"
       MONGO_URI: mongodb://mongo:27017/nexus_ecommerce
-      JWT_SECRET: \${JWT_SECRET:?Set a strong JWT_SECRET in .env}
-      JWT_EXPIRE: \${JWT_EXPIRE:-30d}
-      COOKIE_EXPIRE: \${COOKIE_EXPIRE:-30}
-      ADMIN_EMAIL: \${ADMIN_EMAIL:?Set ADMIN_EMAIL in .env}
-      ADMIN_PASSWORD: \${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
+      JWT_SECRET: ${JWT_SECRET:?Set a strong JWT_SECRET in .env}
+      JWT_EXPIRE: ${JWT_EXPIRE:-30d}
+      COOKIE_EXPIRE: ${COOKIE_EXPIRE:-30}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?Set ADMIN_EMAIL in .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
     depends_on:
       mongo:
         condition: service_healthy
@@ -24,7 +24,6 @@ services:
     image: mongo:7.0
     container_name: nexus-mongodb
     restart: unless-stopped
-    # Keep the database reachable from this Mac only, not the public network.
     ports:
       - "127.0.0.1:27017:27017"
     volumes:
@@ -47,8 +46,8 @@ services:
     environment:
       ME_CONFIG_MONGODB_SERVER: mongo
       ME_CONFIG_MONGODB_PORT: "27017"
-      ME_CONFIG_BASICAUTH_USERNAME: \${MONGO_EXPRESS_USER:?Set MONGO_EXPRESS_USER in .env}
-      ME_CONFIG_BASICAUTH_PASSWORD: \${MONGO_EXPRESS_PASSWORD:?Set MONGO_EXPRESS_PASSWORD in .env}
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USER:?Set MONGO_EXPRESS_USER in .env}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:?Set MONGO_EXPRESS_PASSWORD in .env}
     depends_on:
       mongo:
         condition: service_healthy
