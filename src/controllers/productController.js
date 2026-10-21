@@ -1,4 +1,43 @@
 import Product from '../models/Product.js';
+import multer from 'multer';
+import csvParser from 'csv-parser';
+import { Readable } from 'stream';
+
+// @desc    Search autocomplete suggestions
+// @route   GET /api/v1/products/autocomplete
+export const getAutocomplete = async (req, res, next) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (q.length < 2) {
+      return res.status(200).json({ success: true, suggestions: [] });
+    }
+
+    const regex = new RegExp(q, 'i');
+    const products = await Product.find({
+      $or: [
+        { name: regex },
+        { brand: regex },
+        { category: regex },
+      ],
+    })
+      .select('name slug price images brand category')
+      .limit(8);
+
+    const suggestions = products.map(p => ({
+      id: p._id,
+      name: p.name,
+      slug: p.slug,
+      price: p.price,
+      image: p.images[0] || '',
+      brand: p.brand,
+      category: p.category,
+    }));
+
+    res.status(200).json({ success: true, suggestions });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // @desc    Get all products with filtering, search, sorting & pagination
 // @route   GET /api/v1/products
@@ -184,6 +223,76 @@ export const createProductReview = async (req, res, next) => {
       success: true,
       message: 'Review submitted successfully',
       review,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Import products via CSV
+// @route   POST /api/v1/products/import
+export const importProducts = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Please upload a CSV file' });
+    }
+
+    const results = [];
+    const errors = [];
+    let rowNum = 0;
+
+    const stream = Readable.from(req.file.buffer.toString());
+
+    await new Promise((resolve, reject) => {
+      stream
+        .pipe(csvParser())
+        .on('data', (row) => {
+          rowNum++;
+          // Validate required fields
+          if (!row.name || !row.price || !row.category || !row.description) {
+            errors.push({ row: rowNum, message: 'Missing required fields (name, price, category, description)' });
+            return;
+          }
+          const price = parseFloat(row.price);
+          if (isNaN(price) || price < 0) {
+            errors.push({ row: rowNum, message: `Invalid price: ${row.price}` });
+            return;
+          }
+
+          results.push({
+            name: row.name.trim(),
+            price,
+            compareAtPrice: parseFloat(row.compareAtPrice) || 0,
+            category: row.category.trim(),
+            brand: row.brand || 'Nexus',
+            description: row.description.trim(),
+            shortDescription: (row.shortDescription || '').trim(),
+            countInStock: parseInt(row.countInStock, 10) || 0,
+            images: row.images ? row.images.split('|').map(s => s.trim()) : ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80'],
+            isFeatured: row.isFeatured === 'true' || row.isFeatured === '1',
+            tags: row.tags ? row.tags.split('|').map(s => s.trim()) : [],
+            slug: row.name.trim().toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-4),
+            sku: 'NEX-' + Math.floor(100000 + Math.random() * 900000),
+          });
+        })
+        .on('end', resolve)
+        .on('error', reject);
+    });
+
+    let imported = 0;
+    if (results.length > 0) {
+      const inserted = await Product.insertMany(results, { ordered: false }).catch(err => {
+        if (err.insertedDocs) return err.insertedDocs;
+        throw err;
+      });
+      imported = Array.isArray(inserted) ? inserted.length : 0;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Imported ${imported} product(s). ${errors.length} row(s) had errors.`,
+      imported,
+      errors: errors.slice(0, 20),
     });
   } catch (error) {
     next(error);

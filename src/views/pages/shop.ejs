@@ -17,6 +17,11 @@
       <form id="sort-form" method="GET" class="flex items-center gap-2">
         <% if (keyword) { %><input type="hidden" name="keyword" value="<%= keyword %>"><% } %>
         <% if (currentCategory && currentCategory !== 'all') { %><input type="hidden" name="category" value="<%= currentCategory %>"><% } %>
+        <% if (currentBrand && currentBrand !== 'all') { %><input type="hidden" name="brand" value="<%= currentBrand %>"><% } %>
+        <% if (minPrice) { %><input type="hidden" name="minPrice" value="<%= minPrice %>"><% } %>
+        <% if (maxPrice) { %><input type="hidden" name="maxPrice" value="<%= maxPrice %>"><% } %>
+        <% if (currentRating) { %><input type="hidden" name="rating" value="<%= currentRating %>"><% } %>
+        <% if (inStock === 'true') { %><input type="hidden" name="inStock" value="true"><% } %>
         
         <label for="sort-select" class="text-xs font-bold text-slate-500 whitespace-nowrap">Sort by:</label>
         <select id="sort-select" name="sort" onchange="this.form.submit()" class="bg-white border border-slate-200 text-xs font-semibold text-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -24,6 +29,7 @@
           <option value="price-asc" <%= currentSort === 'price-asc' ? 'selected' : '' %>>Price: Low to High</option>
           <option value="price-desc" <%= currentSort === 'price-desc' ? 'selected' : '' %>>Price: High to Low</option>
           <option value="rating" <%= currentSort === 'rating' ? 'selected' : '' %>>Highest Rated</option>
+          <option value="popular" <%= currentSort === 'popular' ? 'selected' : '' %>>Most Popular</option>
         </select>
       </form>
     </div>
@@ -47,19 +53,77 @@
         <!-- Categories List -->
         <div>
           <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">Categories</label>
-          <div class="space-y-2">
+          <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
             <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
-              <input type="radio" name="category" value="all" <%= currentCategory === 'all' ? 'checked' : '' %> onchange="this.form.submit()" class="text-indigo-600 focus:ring-indigo-500">
+              <input type="radio" name="category" value="all" <%= currentCategory === 'all' ? 'checked' : '' %> class="text-indigo-600 focus:ring-indigo-500">
               <span>All Categories</span>
             </label>
             <% categories.forEach(cat => { %>
               <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
-                <input type="radio" name="category" value="<%= cat %>" <%= currentCategory === cat ? 'checked' : '' %> onchange="this.form.submit()" class="text-indigo-600 focus:ring-indigo-500">
-                <span><%= cat %></span>
+                <input type="radio" name="category" value="<%= cat.name %>" <%= currentCategory === cat.name ? 'checked' : '' %> class="text-indigo-600 focus:ring-indigo-500">
+                <span><%= cat.name %></span>
               </label>
             <% }) %>
           </div>
         </div>
+
+        <!-- Brands List -->
+        <% if (brands && brands.length > 0) { %>
+        <div>
+          <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">Brands</label>
+          <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
+            <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+              <input type="radio" name="brand" value="all" <%= currentBrand === 'all' ? 'checked' : '' %> class="text-indigo-600 focus:ring-indigo-500">
+              <span>All Brands</span>
+            </label>
+            <% brands.forEach(b => { %>
+              <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+                <input type="radio" name="brand" value="<%= b.name %>" <%= currentBrand === b.name ? 'checked' : '' %> class="text-indigo-600 focus:ring-indigo-500">
+                <span><%= b.name %></span>
+              </label>
+            <% }) %>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- Price Range -->
+        <div>
+          <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">Price Range</label>
+          <div class="flex items-center gap-2">
+            <input type="number" name="minPrice" value="<%= minPrice %>" placeholder="Min" min="0" step="0.01" class="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <span class="text-slate-400 text-xs font-bold">—</span>
+            <input type="number" name="maxPrice" value="<%= maxPrice %>" placeholder="Max" min="0" step="0.01" class="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+
+        <!-- Rating Filter -->
+        <div>
+          <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">Min Rating</label>
+          <div class="space-y-2">
+            <% [4, 3, 2, 1].forEach(r => { %>
+              <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+                <input type="radio" name="rating" value="<%= r %>" <%= String(currentRating) === String(r) ? 'checked' : '' %> class="text-indigo-600 focus:ring-indigo-500">
+                <div class="flex items-center gap-1">
+                  <% for (let s = 1; s <= 5; s++) { %>
+                    <i class="fas fa-star text-[10px] <%= s <= r ? 'text-amber-400' : 'text-slate-200' %>"></i>
+                  <% } %>
+                  <span class="ml-1"><%= r %>+ Stars</span>
+                </div>
+              </label>
+            <% }) %>
+          </div>
+        </div>
+
+        <!-- Availability -->
+        <div>
+          <label class="flex items-center gap-2 text-xs font-bold text-slate-900 cursor-pointer">
+            <input type="checkbox" name="inStock" value="true" <%= inStock === 'true' ? 'checked' : '' %> class="rounded text-indigo-600 focus:ring-indigo-500">
+            <span>In Stock Only</span>
+          </label>
+        </div>
+
+        <!-- Keep sort value -->
+        <input type="hidden" name="sort" value="<%= currentSort %>">
 
         <button type="submit" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md transition-all">
           Apply Filters
@@ -84,10 +148,26 @@
         <!-- Pagination -->
         <% if (pages > 1) { %>
           <div class="mt-12 flex justify-center items-center gap-2">
+            <% if (page > 1) { %>
+              <a href="/shop?page=<%= page - 1 %>&category=<%= currentCategory %>&brand=<%= currentBrand %>&keyword=<%= keyword %>&sort=<%= currentSort %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&rating=<%= currentRating %>&inStock=<%= inStock %>" 
+                 class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            <% } %>
             <% for (let i = 1; i <= pages; i++) { %>
-              <a href="/shop?page=<%= i %>&category=<%= currentCategory %>&keyword=<%= keyword %>&sort=<%= currentSort %>" 
-                 class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold transition-all <%= i === page ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50' %>">
-                <%= i %>
+              <% if (pages <= 7 || i === 1 || i === pages || (i >= page - 1 && i <= page + 1)) { %>
+                <a href="/shop?page=<%= i %>&category=<%= currentCategory %>&brand=<%= currentBrand %>&keyword=<%= keyword %>&sort=<%= currentSort %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&rating=<%= currentRating %>&inStock=<%= inStock %>" 
+                   class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold transition-all <%= i === page ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50' %>">
+                  <%= i %>
+                </a>
+              <% } else if (i === page - 2 || i === page + 2) { %>
+                <span class="text-slate-400 text-xs px-1">…</span>
+              <% } %>
+            <% } %>
+            <% if (page < pages) { %>
+              <a href="/shop?page=<%= page + 1 %>&category=<%= currentCategory %>&brand=<%= currentBrand %>&keyword=<%= keyword %>&sort=<%= currentSort %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&rating=<%= currentRating %>&inStock=<%= inStock %>" 
+                 class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50">
+                <i class="fas fa-chevron-right"></i>
               </a>
             <% } %>
           </div>

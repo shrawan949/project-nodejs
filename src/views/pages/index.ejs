@@ -58,6 +58,7 @@
           <div class="relative bg-white rounded-3xl p-6 border border-slate-100 shadow-2xl space-y-4">
             <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80" 
                  alt="Featured Product" 
+                 loading="lazy"
                  class="w-full h-80 object-cover rounded-2xl shadow-inner">
             <div class="flex items-center justify-between">
               <div>
@@ -102,7 +103,7 @@
         </div>
         <div>
           <h4 class="text-sm font-bold text-slate-900">Secure Payments</h4>
-          <p class="text-xs text-slate-500">256-bit encrypted checkout with Stripe</p>
+          <p class="text-xs text-slate-500">256-bit encrypted checkout</p>
         </div>
       </div>
 
@@ -129,6 +130,64 @@
     </div>
   </div>
 </section>
+
+<!-- Shop by Category Section -->
+<% if (categories && categories.length > 0) { %>
+<section class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+    <div>
+      <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Browse</span>
+      <h2 class="text-3xl font-black text-slate-950 tracking-tight">Shop by Category</h2>
+    </div>
+    <a href="/shop" class="text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5 transition-colors">
+      <span>All Categories</span>
+      <i class="fas fa-arrow-right text-xs"></i>
+    </a>
+  </div>
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+    <% 
+      const categoryIcons = {
+        'Electronics & Gadgets': 'fa-microchip',
+        'Smartphones & Tablets': 'fa-mobile-screen',
+        'Fashion & Apparel': 'fa-shirt',
+        'Bags & Luggage': 'fa-suitcase-rolling',
+        'Home & Kitchen': 'fa-house-chimney',
+        'Beauty & Personal Care': 'fa-spa',
+        'Fitness & Outdoors': 'fa-dumbbell',
+        'Books & Stationery': 'fa-book-open',
+        'Toys & Games': 'fa-puzzle-piece',
+        'Grocery & Essentials': 'fa-basket-shopping',
+        'Automotive & Travel': 'fa-car',
+        'Sports & Recreation': 'fa-volleyball',
+      };
+      const categoryColors = [
+        'from-indigo-500 to-blue-600',
+        'from-violet-500 to-purple-600',
+        'from-rose-500 to-pink-600',
+        'from-amber-500 to-orange-600',
+        'from-emerald-500 to-teal-600',
+        'from-cyan-500 to-sky-600',
+        'from-fuchsia-500 to-pink-600',
+        'from-lime-500 to-green-600',
+        'from-yellow-500 to-amber-600',
+        'from-red-500 to-rose-600',
+        'from-blue-500 to-indigo-600',
+        'from-teal-500 to-emerald-600',
+      ];
+    %>
+    <% categories.forEach((cat, i) => { %>
+      <a href="/category/<%= cat.slug %>" 
+         class="group relative bg-white rounded-3xl border border-slate-200/80 p-5 flex flex-col items-center gap-3 hover:shadow-xl hover:shadow-slate-200/50 hover:border-indigo-100 hover:-translate-y-1 transition-all duration-300">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br <%= categoryColors[i % categoryColors.length] %> flex items-center justify-center text-white text-xl shadow-lg">
+          <i class="fas <%= categoryIcons[cat.name] || 'fa-tag' %>"></i>
+        </div>
+        <span class="text-xs font-bold text-slate-800 text-center leading-tight group-hover:text-indigo-600 transition-colors"><%= cat.name %></span>
+      </a>
+    <% }) %>
+  </div>
+</section>
+<% } %>
 
 <!-- Featured Products Section -->
 <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -157,9 +216,34 @@
   </div>
 </section>
 
+<!-- Hot Deals Section -->
+<% if (deals && deals.length > 0) { %>
+<section class="py-12 bg-gradient-to-r from-rose-50 via-orange-50 to-amber-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-rose-600">🔥 Limited Time</span>
+        <h2 class="text-3xl font-black text-slate-950 tracking-tight">Hot Deals & Discounts</h2>
+      </div>
+      <a href="/shop?sort=price-asc" class="text-sm font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1.5 transition-colors">
+        <span>See All Deals</span>
+        <i class="fas fa-arrow-right text-xs"></i>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <% deals.forEach(product => { %>
+        <%- include('../partials/product-card', { product }) %>
+      <% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
 <!-- Promo Banner Section -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
   <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 p-8 sm:p-14 text-white shadow-2xl">
+    <div class="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
     <div class="relative z-10 max-w-xl space-y-4">
       <span class="inline-block bg-indigo-500 text-white text-[11px] font-black uppercase px-3 py-1 rounded-full tracking-wider">Flash Sale</span>
       <h2 class="text-3xl sm:text-4xl font-black tracking-tight leading-tight">Elevate your workspace with 20% off all tech gear.</h2>
@@ -173,6 +257,34 @@
     </div>
   </div>
 </section>
+
+<!-- Featured Brands Section -->
+<% if (brands && brands.length > 0) { %>
+<section class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+    <div>
+      <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Our Partners</span>
+      <h2 class="text-3xl font-black text-slate-950 tracking-tight">Featured Brands</h2>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    <% brands.forEach(brand => { %>
+      <a href="/brand/<%= brand.slug %>" 
+         class="group bg-white rounded-2xl border border-slate-200/80 p-5 flex flex-col items-center gap-2 hover:shadow-lg hover:border-indigo-100 hover:-translate-y-0.5 transition-all duration-300">
+        <% if (brand.logo && brand.logo !== '/images/brand-placeholder.png') { %>
+          <img src="<%= brand.logo %>" alt="<%= brand.name %>" class="w-12 h-12 object-contain rounded-xl" loading="lazy">
+        <% } else { %>
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-600 font-black text-lg">
+            <%= brand.name.charAt(0) %>
+          </div>
+        <% } %>
+        <span class="text-xs font-bold text-slate-700 text-center group-hover:text-indigo-600 transition-colors"><%= brand.name %></span>
+      </a>
+    <% }) %>
+  </div>
+</section>
+<% } %>
 
 <!-- Latest Arrivals Section -->
 <section class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -193,5 +305,33 @@
         <%- include('../partials/product-card', { product }) %>
       <% }) %>
     <% } %>
+  </div>
+</section>
+
+<!-- Recently Viewed Section (client-side rendered) -->
+<section class="recently-viewed-section py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="flex items-center justify-between mb-10">
+    <div>
+      <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Your Activity</span>
+      <h2 class="text-3xl font-black text-slate-950 tracking-tight">Recently Viewed</h2>
+    </div>
+  </div>
+  <div id="recently-viewed-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"></div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="py-16 bg-gradient-to-b from-slate-50 to-white">
+  <div class="max-w-2xl mx-auto px-4 text-center">
+    <div class="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl mx-auto mb-6">
+      <i class="fas fa-envelope-open-text"></i>
+    </div>
+    <h2 class="text-2xl font-black text-slate-900 tracking-tight mb-2">Stay in the Loop</h2>
+    <p class="text-sm text-slate-500 mb-8">Subscribe for exclusive deals, new drops, and member-only discounts.</p>
+    <form onsubmit="event.preventDefault(); Cart.showToast('Thanks for subscribing!', 'success'); this.reset();" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+      <input type="email" required placeholder="Enter your email address" class="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <button type="submit" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition-all">
+        Subscribe
+      </button>
+    </form>
   </div>
 </section>

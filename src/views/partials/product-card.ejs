@@ -5,7 +5,8 @@
     <a href="/product/<%= product.slug %>" class="block w-full h-full">
       <img src="<%= product.images[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80' %>" 
            alt="<%= product.name %>" 
-           class="product-card-img w-full h-full object-cover">
+           loading="lazy"
+           class="product-card-img w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
     </a>
 
     <!-- Badges -->
@@ -18,9 +19,20 @@
           <%= Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100) %>% OFF
         </span>
       <% } %>
+      <% if (product.countInStock === 0) { %>
+        <span class="bg-slate-800 text-white text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow-sm">Sold Out</span>
+      <% } %>
     </div>
 
+    <!-- Wishlist Button -->
+    <button onclick="toggleWishlist(this, '<%= product._id %>')"
+            class="absolute top-3 right-3 w-9 h-9 rounded-xl bg-white/90 hover:bg-rose-50 flex items-center justify-center shadow-sm transition-all duration-200 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-10"
+            title="Add to Wishlist">
+      <i class="far fa-heart text-slate-500 hover:text-rose-500 text-sm"></i>
+    </button>
+
     <!-- Quick Add Floating Action -->
+    <% if (product.countInStock > 0) { %>
     <button onclick="addToCartDirect(this)"
             data-id="<%= product._id %>"
             data-name="<%= product.name %>"
@@ -28,9 +40,10 @@
             data-image="<%= product.images[0] %>"
             data-slug="<%= product.slug %>"
             data-stock="<%= product.countInStock %>"
-            class="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-white/95 text-slate-800 hover:bg-indigo-600 hover:text-white flex items-center justify-center shadow-lg transition-all duration-200 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100">
+            class="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-white/95 text-slate-800 hover:bg-indigo-600 hover:text-white flex items-center justify-center shadow-lg transition-all duration-200 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-10">
       <i class="fas fa-plus text-xs"></i>
     </button>
+    <% } %>
   </div>
 
   <!-- Content -->

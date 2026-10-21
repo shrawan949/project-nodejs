@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= typeof title !== 'undefined' ? title : 'Nexus E-Commerce' %></title>
+  <meta name="description" content="Nexus — Premium online marketplace for electronics, fashion, home, beauty, fitness and more. Free shipping on orders over $100.">
+  <meta name="theme-color" content="#4f46e5">
+  <title><%= typeof title !== 'undefined' ? title : 'Nexus — Premium Online Marketplace' %></title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -12,17 +14,8 @@
       theme: {
         extend: {
           colors: {
-            primary: {
-              50: '#f0fdf4',
-              100: '#dcfce7',
-              500: '#22c55e',
-              600: '#16a34a',
-              700: '#15803d',
-            },
-            accent: {
-              500: '#6366f1',
-              600: '#4f46e5',
-            }
+            primary: { 50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',300:'#a5b4fc',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca',800:'#3730a3',900:'#312e81' },
+            accent: { 500:'#f59e0b',600:'#d97706' }
           }
         }
       }
@@ -32,7 +25,7 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <!-- Alpine.js for lightweight UI state -->
+  <!-- Alpine.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
 
   <!-- Custom Styles -->
@@ -41,52 +34,81 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
   <!-- Top Announcement Bar -->
-  <div class="bg-slate-900 text-slate-300 text-xs py-2 px-4 text-center flex justify-center items-center gap-2">
-    <span class="inline-block bg-primary-500/20 text-primary-400 px-2 py-0.5 rounded font-semibold text-[10px] uppercase tracking-wider">Special Offer</span>
-    <span>Use code <strong class="text-white">WELCOME10</strong> for 10% off your first order! • Free worldwide shipping on orders over $100</span>
+  <div class="bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 text-white text-xs py-2 px-4 text-center flex justify-center items-center gap-2">
+    <span class="animate-pulse">🔥</span>
+    <span>Use code <strong>WELCOME10</strong> for 10% off your first order! • Free shipping on orders over $100</span>
   </div>
 
   <!-- Main Navigation -->
-  <header class="sticky top-0 z-50 glass-nav border-b border-slate-200/80 transition-all" x-data="{ mobileMenu: false }">
+  <header class="sticky top-0 z-50 glass-nav border-b border-slate-200/80" x-data="{ mobileMenu: false, catMenu: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-20">
+      <div class="flex items-center justify-between h-16 lg:h-18">
         
         <!-- Logo -->
-        <a href="/" class="flex items-center gap-3 group">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-900 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-            <i class="fas fa-cube text-lg"></i>
+        <a href="/" class="flex items-center gap-2.5 group shrink-0">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary-700 to-primary-500 flex items-center justify-center text-white shadow-lg shadow-primary-500/20 group-hover:scale-105 transition-transform">
+            <i class="fas fa-cube text-sm"></i>
           </div>
           <div>
-            <span class="text-2xl font-black tracking-tight text-slate-900">NEXUS<span class="text-indigo-600">.</span></span>
-            <span class="hidden sm:block text-[10px] font-bold text-slate-400 tracking-widest uppercase">Store</span>
+            <span class="text-xl font-black tracking-tight text-slate-900">NEXUS<span class="text-primary-600">.</span></span>
           </div>
         </a>
 
-        <!-- Desktop Nav Links -->
-        <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
-          <a href="/" class="hover:text-indigo-600 transition-colors <%= currentPath === '/' ? 'text-indigo-600 font-bold' : '' %>">Home</a>
-          <a href="/shop" class="hover:text-indigo-600 transition-colors <%= currentPath === '/shop' ? 'text-indigo-600 font-bold' : '' %>">Shop Catalog</a>
-          <a href="/shop?category=Electronics%20%26%20Gadgets" class="hover:text-indigo-600 transition-colors">Electronics</a>
-          <a href="/shop?category=Fashion%20%26%20Apparel" class="hover:text-indigo-600 transition-colors">Fashion</a>
+        <!-- Desktop Nav -->
+        <nav class="hidden lg:flex items-center gap-1 text-[13px] font-semibold text-slate-600">
+          <a href="/" class="px-3 py-2 rounded-lg hover:text-primary-600 hover:bg-primary-50 transition-colors <%= currentPath === '/' ? 'text-primary-600 bg-primary-50' : '' %>">Home</a>
+          
+          <!-- Categories Dropdown -->
+          <div class="relative" @mouseenter="catMenu = true" @mouseleave="catMenu = false">
+            <button class="px-3 py-2 rounded-lg hover:text-primary-600 hover:bg-primary-50 transition-colors flex items-center gap-1 <%= currentPath === '/shop' ? 'text-primary-600 bg-primary-50' : '' %>">
+              Categories <i class="fas fa-chevron-down text-[9px] text-slate-400"></i>
+            </button>
+            <div x-show="catMenu" x-cloak x-transition.opacity class="absolute top-full left-0 mt-1 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50">
+              <a href="/shop" class="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-primary-600 hover:bg-primary-50 transition-colors">
+                <i class="fas fa-th-large w-4"></i> All Products
+              </a>
+              <div class="border-t border-slate-100 my-1"></div>
+              <a href="/shop?category=Electronics+%26+Gadgets" class="flex items-center gap-3 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-primary-600 transition-colors"><i class="fas fa-laptop w-4 text-slate-400"></i> Electronics & Gadgets</a>
+              <a href="/shop?category=Smartphones+%26+Tablets" class="flex items-center gap-3 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-primary-600 transition-colors"><i class="fas fa-mobile-alt w-4 text-slate-400"></i> Smartphones & Tablets</a>
+              <a href="/shop?category=Fashion+%26+Apparel" class="flex items-center gap-3 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-primary-600 transition-colors"><i class="fas fa-tshirt w-4 text-slate-400"></i> Fashion & Apparel</a>
+              <a href="/shop?category=Home+%26+Kitchen" class="flex items-center gap-3 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-primary-600 transition-colors"><i class="fas fa-home w-4 text-slate-400"></i> Home & Kitchen</a>
+              <a href="/shop?category=Beauty+%26+Personal+Care" class="flex items-center gap-3 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-primary-600 transition-colors"><i class="fas fa-spa w-4 text-slate-400"></i> Beauty & Care</a>
+              <a href="/shop?category=Fitness+%26+Outdoors" class="flex items-center gap-3 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-primary-600 transition-colors"><i class="fas fa-dumbbell w-4 text-slate-400"></i> Fitness & Outdoors</a>
+              <a href="/shop?category=Books+%26+Stationery" class="flex items-center gap-3 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-primary-600 transition-colors"><i class="fas fa-book w-4 text-slate-400"></i> Books & Stationery</a>
+              <a href="/shop?category=Grocery+%26+Essentials" class="flex items-center gap-3 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-primary-600 transition-colors"><i class="fas fa-shopping-basket w-4 text-slate-400"></i> Grocery & Essentials</a>
+            </div>
+          </div>
+
+          <a href="/shop?sort=popular" class="px-3 py-2 rounded-lg hover:text-primary-600 hover:bg-primary-50 transition-colors">Trending</a>
+          <a href="/shop?category=Electronics+%26+Gadgets" class="px-3 py-2 rounded-lg hover:text-primary-600 hover:bg-primary-50 transition-colors">Electronics</a>
+          <a href="/shop?category=Fashion+%26+Apparel" class="px-3 py-2 rounded-lg hover:text-primary-600 hover:bg-primary-50 transition-colors">Fashion</a>
+          
           <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
-            <a href="/admin" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors text-xs font-bold uppercase tracking-wider">
-              <i class="fas fa-shield-alt"></i> Admin Panel
+            <a href="/admin" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors text-[11px] font-bold uppercase tracking-wider">
+              <i class="fas fa-shield-alt"></i> Admin
             </a>
           <% } %>
         </nav>
 
-        <!-- Right Action Icons & Auth -->
-        <div class="flex items-center gap-4">
-          <!-- Search trigger/input -->
-          <form action="/shop" method="GET" class="hidden lg:flex items-center bg-slate-100 border border-slate-200 rounded-full px-3.5 py-1.5 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:bg-white transition-all">
-            <i class="fas fa-search text-slate-400 text-xs mr-2"></i>
-            <input type="text" name="keyword" placeholder="Search products..." class="bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none w-36 focus:w-48 transition-all">
-          </form>
+        <!-- Right Actions -->
+        <div class="flex items-center gap-2">
+          <!-- Search -->
+          <div class="relative hidden md:block">
+            <form action="/shop" method="GET" class="flex items-center bg-slate-100 border border-slate-200 rounded-full px-3 py-1.5 focus-within:ring-2 focus-within:ring-primary-500 focus-within:bg-white transition-all">
+              <i class="fas fa-search text-slate-400 text-xs mr-2"></i>
+              <input type="text" name="keyword" placeholder="Search products..." class="bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none w-32 focus:w-44 transition-all" autocomplete="off">
+            </form>
+          </div>
 
-          <!-- Shopping Cart Icon -->
-          <a href="/cart" class="relative p-2.5 rounded-full hover:bg-slate-100 text-slate-700 transition-colors">
-            <i class="fas fa-shopping-bag text-lg"></i>
-            <span class="cart-count-badge hidden absolute -top-0.5 -right-0.5 bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md">0</span>
+          <!-- Wishlist -->
+          <a href="/wishlist" class="relative p-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors" title="Wishlist">
+            <i class="fas fa-heart text-base"></i>
+          </a>
+
+          <!-- Cart -->
+          <a href="/cart" class="relative p-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors" title="Cart">
+            <i class="fas fa-shopping-bag text-base"></i>
+            <span class="cart-count-badge hidden absolute -top-0.5 -right-0.5 bg-primary-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md">0</span>
           </a>
 
           <!-- User Menu -->
@@ -94,35 +116,32 @@
             <div class="relative" x-data="{ open: false }">
               <button @click="open = !open" class="flex items-center gap-2 p-1 pl-2 rounded-full hover:bg-slate-100 transition-colors">
                 <span class="text-xs font-semibold text-slate-700 hidden sm:inline"><%= user.name.split(' ')[0] %></span>
-                <img src="<%= user.avatar %>" alt="avatar" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                <img src="<%= user.avatar %>" alt="avatar" class="w-8 h-8 rounded-full object-cover border-2 border-slate-200">
               </button>
-              <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 text-sm z-50">
-                <div class="px-4 py-2 border-b border-slate-100">
+              <div x-show="open" @click.away="open = false" x-cloak x-transition class="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 text-sm z-50">
+                <div class="px-4 py-2.5 border-b border-slate-100">
                   <p class="font-bold text-slate-800 text-xs"><%= user.name %></p>
                   <p class="text-slate-400 text-[11px] truncate"><%= user.email %></p>
                 </div>
-                <a href="/my-orders" class="flex items-center gap-2 px-4 py-2 text-slate-600 hover:bg-slate-50 hover:text-indigo-600">
-                  <i class="fas fa-box text-xs"></i> My Orders
-                </a>
+                <a href="/profile" class="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-primary-600"><i class="fas fa-user w-4 text-center text-slate-400"></i> My Account</a>
+                <a href="/my-orders" class="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-primary-600"><i class="fas fa-box w-4 text-center text-slate-400"></i> My Orders</a>
+                <a href="/wishlist" class="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-primary-600"><i class="fas fa-heart w-4 text-center text-slate-400"></i> Wishlist</a>
                 <% if (user.role === 'admin') { %>
-                  <a href="/admin" class="flex items-center gap-2 px-4 py-2 text-indigo-600 font-semibold hover:bg-indigo-50">
-                    <i class="fas fa-tachometer-alt text-xs"></i> Dashboard
-                  </a>
+                  <a href="/admin" class="flex items-center gap-2.5 px-4 py-2 text-xs text-primary-600 font-semibold hover:bg-primary-50"><i class="fas fa-tachometer-alt w-4 text-center"></i> Dashboard</a>
                 <% } %>
-                <a href="/api/v1/auth/logout" class="flex items-center gap-2 px-4 py-2 text-rose-600 hover:bg-rose-50 border-t border-slate-100">
-                  <i class="fas fa-sign-out-alt text-xs"></i> Sign Out
-                </a>
+                <div class="border-t border-slate-100 mt-1"></div>
+                <a href="/api/v1/auth/logout" class="flex items-center gap-2.5 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50"><i class="fas fa-sign-out-alt w-4 text-center"></i> Sign Out</a>
               </div>
             </div>
           <% } else { %>
             <div class="flex items-center gap-2">
-              <a href="/login" class="text-xs font-bold text-slate-700 hover:text-indigo-600 px-3 py-2 rounded-lg transition-colors">Sign In</a>
-              <a href="/register" class="text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl shadow-md transition-all">Sign Up</a>
+              <a href="/login" class="text-xs font-bold text-slate-700 hover:text-primary-600 px-3 py-2 rounded-lg transition-colors">Sign In</a>
+              <a href="/register" class="text-xs font-bold bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl shadow-md transition-all">Sign Up</a>
             </div>
           <% } %>
 
           <!-- Mobile Hamburger -->
-          <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100">
+          <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100">
             <i class="fas fa-bars text-lg"></i>
           </button>
         </div>
@@ -130,16 +149,28 @@
       </div>
 
       <!-- Mobile Dropdown Nav -->
-      <div x-show="mobileMenu" x-cloak class="md:hidden border-t border-slate-200 py-4 space-y-2">
+      <div x-show="mobileMenu" x-cloak x-transition class="lg:hidden border-t border-slate-200 py-4 space-y-1">
         <a href="/" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">Home</a>
-        <a href="/shop" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">Shop Catalog</a>
+        <a href="/shop" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">Shop All</a>
+        <a href="/shop?category=Electronics+%26+Gadgets" class="block px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-100">Electronics</a>
+        <a href="/shop?category=Fashion+%26+Apparel" class="block px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-100">Fashion</a>
+        <a href="/shop?category=Home+%26+Kitchen" class="block px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-100">Home & Kitchen</a>
         <a href="/cart" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">Cart</a>
+        <a href="/wishlist" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">Wishlist</a>
         <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/profile" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">My Account</a>
           <a href="/my-orders" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">My Orders</a>
           <% if (user.role === 'admin') { %>
-            <a href="/admin" class="block px-3 py-2 rounded-lg text-sm font-semibold text-indigo-600 hover:bg-indigo-50">Admin Panel</a>
+            <a href="/admin" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary-600 hover:bg-primary-50">Admin Panel</a>
           <% } %>
         <% } %>
+        <!-- Mobile Search -->
+        <form action="/shop" method="GET" class="px-3 pt-2">
+          <div class="flex items-center bg-slate-100 border border-slate-200 rounded-xl px-3 py-2">
+            <i class="fas fa-search text-slate-400 text-xs mr-2"></i>
+            <input type="text" name="keyword" placeholder="Search products..." class="bg-transparent text-sm text-slate-800 placeholder-slate-400 focus:outline-none w-full">
+          </div>
+        </form>
       </div>
     </div>
   </header>
@@ -149,69 +180,77 @@
     <%- body %>
   </main>
 
-  <!-- Modern Footer -->
-  <footer class="bg-slate-950 text-slate-400 text-sm mt-24 border-t border-slate-800">
+  <!-- Footer -->
+  <footer class="bg-slate-950 text-slate-400 text-sm mt-16 border-t border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
         <!-- Brand -->
-        <div class="space-y-4">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold">
-              <i class="fas fa-cube"></i>
-            </div>
-            <span class="text-xl font-black text-white tracking-tight">NEXUS<span class="text-indigo-500">.</span></span>
+        <div class="col-span-2 md:col-span-1 space-y-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-primary-600 flex items-center justify-center text-white text-sm"><i class="fas fa-cube"></i></div>
+            <span class="text-lg font-black text-white tracking-tight">NEXUS<span class="text-primary-500">.</span></span>
           </div>
-          <p class="text-xs leading-relaxed text-slate-400">
-            Curated high-performance gear, modern lifestyle essentials, and designer electronics built for the discerning creator.
-          </p>
-          <div class="flex gap-4 text-slate-400">
+          <p class="text-xs leading-relaxed">Premium marketplace for electronics, fashion, home, beauty, and more.</p>
+          <div class="flex gap-3 text-slate-500">
             <a href="#" class="hover:text-white transition-colors"><i class="fab fa-twitter"></i></a>
-            <a href="#" class="hover:text-white transition-colors"><i class="fab fa-github"></i></a>
             <a href="#" class="hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="hover:text-white transition-colors"><i class="fab fa-discord"></i></a>
+            <a href="#" class="hover:text-white transition-colors"><i class="fab fa-github"></i></a>
           </div>
         </div>
 
-        <!-- Quick Links -->
+        <!-- Shop -->
         <div>
-          <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Shop Collections</h4>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Shop</h4>
           <ul class="space-y-2 text-xs">
             <li><a href="/shop" class="hover:text-white transition-colors">All Products</a></li>
-            <li><a href="/shop?category=Electronics%20%26%20Gadgets" class="hover:text-white transition-colors">Electronics & Gadgets</a></li>
-            <li><a href="/shop?category=Fashion%20%26%20Apparel" class="hover:text-white transition-colors">Fashion & Apparel</a></li>
-            <li><a href="/shop?category=Home%20%26%20Kitchen" class="hover:text-white transition-colors">Home & Living</a></li>
+            <li><a href="/shop?category=Electronics+%26+Gadgets" class="hover:text-white transition-colors">Electronics</a></li>
+            <li><a href="/shop?category=Fashion+%26+Apparel" class="hover:text-white transition-colors">Fashion</a></li>
+            <li><a href="/shop?category=Home+%26+Kitchen" class="hover:text-white transition-colors">Home & Kitchen</a></li>
+            <li><a href="/shop?category=Beauty+%26+Personal+Care" class="hover:text-white transition-colors">Beauty</a></li>
           </ul>
         </div>
 
-        <!-- Customer Care -->
+        <!-- More -->
         <div>
-          <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Customer Care</h4>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">More</h4>
           <ul class="space-y-2 text-xs">
-            <li><a href="/my-orders" class="hover:text-white transition-colors">Track Order</a></li>
+            <li><a href="/shop?category=Fitness+%26+Outdoors" class="hover:text-white transition-colors">Fitness</a></li>
+            <li><a href="/shop?category=Books+%26+Stationery" class="hover:text-white transition-colors">Books</a></li>
+            <li><a href="/shop?category=Toys+%26+Games" class="hover:text-white transition-colors">Toys & Games</a></li>
+            <li><a href="/shop?category=Grocery+%26+Essentials" class="hover:text-white transition-colors">Grocery</a></li>
+            <li><a href="/shop?category=Sports+%26+Recreation" class="hover:text-white transition-colors">Sports</a></li>
+          </ul>
+        </div>
+
+        <!-- Account -->
+        <div>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Account</h4>
+          <ul class="space-y-2 text-xs">
+            <li><a href="/profile" class="hover:text-white transition-colors">My Profile</a></li>
+            <li><a href="/my-orders" class="hover:text-white transition-colors">Track Orders</a></li>
+            <li><a href="/wishlist" class="hover:text-white transition-colors">Wishlist</a></li>
             <li><a href="/cart" class="hover:text-white transition-colors">Shopping Cart</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Shipping & Returns</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Terms & Privacy</a></li>
           </ul>
         </div>
 
         <!-- Newsletter -->
         <div>
-          <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Join the Club</h4>
-          <p class="text-xs text-slate-400 mb-3">Get 10% off your first purchase plus insider access to secret drops.</p>
-          <form onsubmit="event.preventDefault(); Cart.showToast('Subscribed to newsletter!', 'success');" class="flex gap-2">
-            <input type="email" required placeholder="Enter your email" class="bg-slate-900 border border-slate-800 text-xs text-white rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500 w-full">
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all">Join</button>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Stay Updated</h4>
+          <p class="text-xs text-slate-400 mb-3">Get 10% off your first purchase.</p>
+          <form onsubmit="event.preventDefault(); Cart.showToast('Subscribed!', 'success');" class="flex gap-2">
+            <input type="email" required placeholder="Email" class="bg-slate-900 border border-slate-800 text-xs text-white rounded-xl px-3 py-2 focus:outline-none focus:border-primary-500 w-full">
+            <button type="submit" class="bg-primary-600 hover:bg-primary-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all shrink-0">Go</button>
           </form>
         </div>
       </div>
 
       <div class="mt-12 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-        <p>&copy; 2026 Nexus E-Commerce Platform. All rights reserved.</p>
+        <p>&copy; 2026 Nexus E-Commerce. All rights reserved.</p>
         <div class="flex items-center gap-4 text-base">
-          <i class="fab fa-cc-visa text-slate-400"></i>
-          <i class="fab fa-cc-mastercard text-slate-400"></i>
-          <i class="fab fa-cc-stripe text-slate-400"></i>
-          <i class="fab fa-cc-paypal text-slate-400"></i>
+          <i class="fab fa-cc-visa text-slate-500"></i>
+          <i class="fab fa-cc-mastercard text-slate-500"></i>
+          <i class="fab fa-cc-stripe text-slate-500"></i>
+          <i class="fab fa-cc-paypal text-slate-500"></i>
         </div>
       </div>
     </div>

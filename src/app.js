@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import expressLayouts from 'express-ejs-layouts';
 import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
 
 import apiRoutes from './routes/apiRoutes.js';
 import pageRoutes from './routes/pageRoutes.js';
@@ -19,10 +20,19 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Security Headers with relaxed CSP for CDN libraries (Tailwind, FontAwesome, AlpineJS, Chart.js)
+// Security Headers with CSP configured for CDN libraries
 app.use(
   helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.tailwindcss.com"],
+        fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+        imgSrc: ["'self'", "data:", "https://images.unsplash.com", "https://*.unsplash.com", "https://*.cloudinary.com", "https:"],
+        connectSrc: ["'self'"],
+      },
+    },
     crossOriginEmbedderPolicy: false,
   })
 );
@@ -37,7 +47,11 @@ if (process.env.NODE_ENV !== 'test') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || true,
+  credentials: true,
+}));
+app.use(mongoSanitize());
 
 // Rate Limiting for API routes
 const apiLimiter = rateLimit({
@@ -48,6 +62,18 @@ const apiLimiter = rateLimit({
   message: { success: false, message: 'Too many requests, please try again later.' },
 });
 app.use('/api/', apiLimiter);
+
+// Stricter rate limiter for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many auth attempts, please try again after 15 minutes.' },
+});
+app.use('/api/v1/auth/login', authLimiter);
+app.use('/api/v1/auth/register', authLimiter);
+app.use('/api/v1/auth/forgotpassword', authLimiter);
 
 // View Engine (EJS & Layouts)
 app.use(expressLayouts);

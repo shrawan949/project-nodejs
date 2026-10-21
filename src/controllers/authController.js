@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import User from '../models/User.js';
 import { sendTokenResponse } from '../utils/generateToken.js';
 
@@ -126,6 +127,117 @@ export const updateDetails = async (req, res, next) => {
       success: true,
       message: 'Profile updated successfully',
       user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update password
+// @route   PUT /api/v1/auth/updatepassword
+export const updatePassword = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select('+password');
+
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Please provide current and new password' });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 6 characters' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    const { token } = sendTokenResponse(user, 200, res);
+
+    res.status(200).json({
+      success: true,
+      message: 'Password updated successfully',
+      token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Forgot password — generate reset token
+// @route   POST /api/v1/auth/forgotpassword
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Please provide an email address' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Don't reveal if email exists, but return success-like response
+      return res.status(200).json({
+        success: true,
+        message: 'If an account with that email exists, a password reset link has been generated.',
+      });
+    }
+
+    const resetToken = user.getResetPasswordToken();
+    await user.save({ validateBeforeSave: false });
+
+    // In production, this would send an email.
+    // For now, return the reset URL directly (test mode).
+    const resetUrl = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`;
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset token generated. In production, this would be emailed.',
+      resetUrl,
+      note: 'TEST MODE — In production, the reset link is emailed to the user and never exposed in the API response.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reset password using token
+// @route   PUT /api/v1/auth/resetpassword/:resettoken
+export const resetPassword = async (req, res, next) => {
+  try {
+    const resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(req.params.resettoken)
+      .digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
+    }
+
+    const { password } = req.body;
+    if (!password || password.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+    }
+
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    const { token } = sendTokenResponse(user, 200, res);
+
+    res.status(200).json({
+      success: true,
+      message: 'Password has been reset successfully',
+      token,
     });
   } catch (error) {
     next(error);

@@ -1,62 +1,102 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
   
-  <div class="flex items-center justify-between pb-8 border-b border-slate-200/80">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-8 border-b border-slate-200/80 gap-4">
     <div>
       <nav class="flex items-center gap-2 text-xs text-slate-400 font-semibold mb-1">
         <a href="/admin" class="hover:text-indigo-600">Admin</a>
         <span>/</span>
         <span class="text-slate-700">Orders</span>
       </nav>
-      <h1 class="text-3xl font-black text-slate-900 tracking-tight">Orders Management</h1>
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight">Order Management</h1>
+      <p class="text-xs text-slate-400 mt-1"><%= totalOrders %> orders total</p>
     </div>
   </div>
 
-  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm mt-8 overflow-hidden">
+  <!-- Status Filter Tabs -->
+  <div class="flex items-center gap-2 mt-6 mb-6 overflow-x-auto pb-2">
+    <% 
+      const statuses = ['all', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+      const tabColors = {
+        'all': 'bg-slate-900 text-white',
+        'Pending': 'bg-amber-100 text-amber-700',
+        'Processing': 'bg-blue-100 text-blue-700',
+        'Shipped': 'bg-cyan-100 text-cyan-700',
+        'Delivered': 'bg-emerald-100 text-emerald-700',
+        'Cancelled': 'bg-rose-100 text-rose-700',
+      };
+    %>
+    <% statuses.forEach(s => { %>
+      <a href="/admin/orders?status=<%= s %>" 
+         class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all <%= currentStatus === s ? (s === 'all' ? tabColors.all : tabColors[s]) : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' %>">
+        <%= s === 'all' ? 'All Orders' : s %>
+      </a>
+    <% }) %>
+  </div>
+
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full text-left text-xs">
         <thead class="bg-slate-50 text-slate-400 uppercase tracking-wider border-b border-slate-100">
           <tr>
             <th class="py-3 px-4">Order ID</th>
             <th class="py-3 px-4">Customer</th>
-            <th class="py-3 px-4">Items Count</th>
-            <th class="py-3 px-4">Total Amount</th>
+            <th class="py-3 px-4">Items</th>
+            <th class="py-3 px-4">Total</th>
             <th class="py-3 px-4">Payment</th>
-            <th class="py-3 px-4">Fulfillment Status</th>
+            <th class="py-3 px-4">Status</th>
             <th class="py-3 px-4">Date</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 font-medium">
-          <% orders.forEach(order => { %>
-            <tr class="hover:bg-slate-50/70 transition-colors">
-              <td class="py-3.5 px-4 font-bold text-slate-900"><%= order.orderNumber %></td>
-              <td class="py-3.5 px-4">
-                <p class="font-bold text-slate-800"><%= order.user ? order.user.name : 'Guest' %></p>
-                <p class="text-[10px] text-slate-400"><%= order.user ? order.user.email : '' %></p>
-              </td>
-              <td class="py-3.5 px-4 text-slate-600"><%= order.orderItems.length %> items</td>
-              <td class="py-3.5 px-4 font-black text-slate-900">$<%= order.totalPrice.toFixed(2) %></td>
-              <td class="py-3.5 px-4">
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold <%= order.isPaid ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700' %>">
-                  <%= order.isPaid ? 'PAID' : 'PENDING' %>
-                </span>
-              </td>
-              <td class="py-3.5 px-4">
-                <select onchange="updateOrderStatus('<%= order._id %>', this.value)" 
-                        class="bg-slate-50 border border-slate-200 text-xs font-bold rounded-xl px-2.5 py-1 text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                  <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
-                  <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                  <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                  <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                </select>
-              </td>
-              <td class="py-3.5 px-4 text-slate-400"><%= new Date(order.createdAt).toLocaleDateString() %></td>
+          <% if (orders && orders.length > 0) { %>
+            <% orders.forEach(order => { %>
+              <tr class="hover:bg-slate-50/70 transition-colors">
+                <td class="py-3.5 px-4 font-bold text-slate-900"><%= order.orderNumber %></td>
+                <td class="py-3.5 px-4">
+                  <p class="font-bold text-slate-800"><%= order.user ? order.user.name : 'Guest' %></p>
+                  <p class="text-[10px] text-slate-400"><%= order.user ? order.user.email : '' %></p>
+                </td>
+                <td class="py-3.5 px-4 text-slate-600"><%= order.orderItems.length %> items</td>
+                <td class="py-3.5 px-4 font-black text-slate-900">$<%= order.totalPrice.toFixed(2) %></td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold <%= order.isPaid ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700' %>">
+                    <%= order.isPaid ? 'PAID' : 'PENDING' %>
+                  </span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <select onchange="updateOrderStatus('<%= order._id %>', this.value)" 
+                          class="bg-slate-50 border border-slate-200 text-xs font-bold rounded-xl px-2.5 py-1 text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                    <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                    <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                    <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                    <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                  </select>
+                </td>
+                <td class="py-3.5 px-4 text-slate-400"><%= new Date(order.createdAt).toLocaleDateString() %></td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="7" class="py-8 text-center text-slate-400">No orders found for this filter.</td>
             </tr>
-          <% }) %>
+          <% } %>
         </tbody>
       </table>
     </div>
   </div>
+
+  <!-- Pagination -->
+  <% if (pages > 1) { %>
+    <div class="mt-8 flex justify-center items-center gap-2">
+      <% for (let i = 1; i <= pages; i++) { %>
+        <a href="/admin/orders?page=<%= i %>&status=<%= currentStatus %>" 
+           class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold transition-all <%= i === page ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50' %>">
+          <%= i %>
+        </a>
+      <% } %>
+    </div>
+  <% } %>
 
 </div>
 

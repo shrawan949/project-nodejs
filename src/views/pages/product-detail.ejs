@@ -23,8 +23,9 @@
         <div class="flex gap-3 overflow-x-auto pb-2">
           <% product.images.forEach(img => { %>
             <button @click="mainImage = '<%= img %>'" 
-                    class="w-20 h-20 rounded-2xl bg-white border border-slate-200/80 overflow-hidden p-1.5 focus:ring-2 focus:ring-indigo-500 hover:border-indigo-400 shrink-0 transition-all">
-              <img src="<%= img %>" alt="thumb" class="w-full h-full object-cover rounded-xl">
+                    :class="mainImage === '<%= img %>' ? 'border-indigo-500 ring-2 ring-indigo-200' : 'border-slate-200/80'"
+                    class="w-20 h-20 rounded-2xl bg-white border overflow-hidden p-1.5 hover:border-indigo-400 shrink-0 transition-all">
+              <img src="<%= img %>" alt="thumb" loading="lazy" class="w-full h-full object-cover rounded-xl">
             </button>
           <% }) %>
         </div>
@@ -41,6 +42,11 @@
         </div>
         <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight"><%= product.name %></h1>
         
+        <!-- Brand -->
+        <% if (product.brand) { %>
+          <p class="text-sm text-slate-500 mt-1">by <span class="font-bold text-slate-700"><%= product.brand %></span></p>
+        <% } %>
+
         <!-- Ratings -->
         <div class="flex items-center gap-3 mt-3">
           <div class="flex text-amber-400 text-xs gap-1">
@@ -98,7 +104,7 @@
             <!-- Add to Cart Button -->
             <button @click="Cart.addItem({
                       id: '<%= product._id %>',
-                      name: '<%= product.name.replace(/'/g, '') %>',
+                      name: '<%= product.name.replace(/'/g, "\\'") %>',
                       price: <%= product.price %>,
                       image: '<%= product.images[0] %>',
                       slug: '<%= product.slug %>',
@@ -110,9 +116,10 @@
             </button>
           </div>
 
+          <!-- Buy Now -->
           <a href="/cart" @click="Cart.addItem({
                       id: '<%= product._id %>',
-                      name: '<%= product.name.replace(/'/g, '') %>',
+                      name: '<%= product.name.replace(/'/g, "\\'") %>',
                       price: <%= product.price %>,
                       image: '<%= product.images[0] %>',
                       slug: '<%= product.slug %>',
@@ -121,11 +128,22 @@
              class="block w-full py-3.5 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-center font-bold text-sm shadow-md transition-all">
             Buy Now
           </a>
+
+          <!-- Wishlist Button -->
+          <button onclick="toggleWishlist(this, '<%= product._id %>')" 
+                  class="w-full py-3 px-6 rounded-2xl border border-slate-200 hover:border-rose-200 hover:bg-rose-50 text-slate-700 font-bold text-sm flex items-center justify-center gap-2 transition-all">
+            <i class="<%= isWishlisted ? 'fas text-rose-500' : 'far' %> fa-heart text-sm"></i>
+            <span><%= isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' %></span>
+          </button>
         </div>
       <% } %>
 
       <!-- Guarantees box -->
       <div class="border-t border-slate-200/80 pt-6 grid grid-cols-2 gap-4 text-xs text-slate-500">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-truck-fast text-slate-400"></i>
+          <span>Free Shipping over $100</span>
+        </div>
         <div class="flex items-center gap-2">
           <i class="fas fa-rotate-left text-slate-400"></i>
           <span>30-Day Free Returns</span>
@@ -134,11 +152,34 @@
           <i class="fas fa-certificate text-slate-400"></i>
           <span>100% Authentic Guarantee</span>
         </div>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-shield-halved text-slate-400"></i>
+          <span>Secure Checkout</span>
+        </div>
       </div>
 
     </div>
 
   </div>
+
+  <!-- Specifications Section -->
+  <% if (product.specifications && product.specifications.length > 0) { %>
+  <section class="border-t border-slate-200/80 pt-12 mb-12">
+    <h2 class="text-2xl font-black text-slate-900 mb-6">Specifications</h2>
+    <div class="bg-white rounded-3xl border border-slate-200/80 overflow-hidden">
+      <table class="w-full text-sm">
+        <tbody class="divide-y divide-slate-100">
+          <% product.specifications.forEach((spec, i) => { %>
+            <tr class="<%= i % 2 === 0 ? 'bg-slate-50/50' : 'bg-white' %>">
+              <td class="py-3 px-6 font-bold text-slate-700 w-1/3"><%= spec.key %></td>
+              <td class="py-3 px-6 text-slate-600"><%= spec.value %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <% } %>
 
   <!-- Customer Reviews Section -->
   <section class="border-t border-slate-200/80 pt-16 mb-16">
@@ -200,6 +241,24 @@
     </div>
   </section>
 
+  <!-- Related Products Section -->
+  <% if (relatedProducts && relatedProducts.length > 0) { %>
+  <section class="border-t border-slate-200/80 pt-12">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-2xl font-black text-slate-900">You May Also Like</h2>
+      <a href="/shop?category=<%= encodeURIComponent(product.category) %>" class="text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5">
+        <span>See All</span>
+        <i class="fas fa-arrow-right text-xs"></i>
+      </a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <% relatedProducts.forEach(product => { %>
+        <%- include('../partials/product-card', { product }) %>
+      <% }) %>
+    </div>
+  </section>
+  <% } %>
+
 </div>
 
 <script>
@@ -225,4 +284,13 @@ async function submitReview(e, form) {
     Cart.showToast('Failed to submit review', 'error');
   }
 }
+
+// Track product view for "Recently Viewed"
+trackProductView({
+  id: '<%= product._id %>',
+  name: '<%= product.name.replace(/'/g, "\\'") %>',
+  slug: '<%= product.slug %>',
+  price: <%= product.price %>,
+  image: '<%= product.images[0] %>',
+});
 </script>

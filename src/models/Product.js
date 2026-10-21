@@ -27,6 +27,11 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+const specificationSchema = new mongoose.Schema({
+  key: { type: String, required: true },
+  value: { type: String, required: true },
+}, { _id: false });
+
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -102,11 +107,21 @@ const productSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    specifications: [specificationSchema],
   },
   {
     timestamps: true,
   }
 );
+
+// Text index for full-text search
+productSchema.index({ name: 'text', description: 'text', brand: 'text' });
+
+// Compound indexes for filtering & sorting
+productSchema.index({ category: 1, price: 1 });
+productSchema.index({ brand: 1 });
+productSchema.index({ rating: -1 });
+productSchema.index({ isFeatured: 1, createdAt: -1 });
 
 // Auto-generate slug and SKU
 productSchema.pre('save', function (next) {

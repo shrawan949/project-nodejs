@@ -13,6 +13,11 @@ const categorySchema = new mongoose.Schema(
       lowercase: true,
       unique: true,
     },
+    parent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+      default: null,
+    },
     icon: {
       type: String,
       default: 'tag',
@@ -22,9 +27,19 @@ const categorySchema = new mongoose.Schema(
       default: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80',
     },
     description: String,
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    order: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
+
+categorySchema.index({ parent: 1 });
 
 categorySchema.pre('save', function (next) {
   if (this.isModified('name')) {
