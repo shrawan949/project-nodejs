@@ -56,8 +56,11 @@ npm install
 ### 2. Configure Environment
 ```bash
 cp .env.example .env
+openssl rand -hex 32
 ```
-Ensure MongoDB is running locally (`mongodb://localhost:27017/nexus_ecommerce`) or provide your MongoDB Atlas URI in `.env`.
+Paste the generated value into `JWT_SECRET` in `.env`, and set unique values for `ADMIN_PASSWORD`, `MONGO_EXPRESS_PASSWORD`, and `MONGO_EXPRESS_USER`. Do not commit `.env` or use demo credentials in a public deployment. Ensure MongoDB is running locally (`mongodb://localhost:27017/nexus_ecommerce`) or provide your MongoDB Atlas URI in `.env`.
+
+For Docker Compose, configure those values in `.env` first. MongoDB and Mongo Express are bound to `127.0.0.1` so they are not exposed on every network interface by default.
 
 ### 3. Seed Database
 Populate with 50+ products, 12 categories, 36 subcategories, 20 brands, coupons, and demo users:
