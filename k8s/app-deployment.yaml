@@ -16,35 +16,36 @@ spec:
         app: nexus-app
     spec:
       containers:
-      - name: nexus-app
-        image: node:20-alpine
-        command: ["sh", "-c", "npm install && node src/utils/seeder.js && npm start"]
-        ports:
-        - containerPort: 5000
-        envFrom:
-        - configMapRef:
-            name: nexus-config
-        - secretRef:
-            name: nexus-secret
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 5000
-          initialDelaySeconds: 15
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 5000
-          initialDelaySeconds: 30
-          periodSeconds: 15
+        - name: nexus-app
+          # Build and push the repository Dockerfile before applying this manifest.
+          image: YOUR_DOCKERHUB_USERNAME/nexus-ecommerce:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: nexus-config
+            - secretRef:
+                name: nexus-secret
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 15
 ---
 apiVersion: v1
 kind: Service
@@ -56,6 +57,6 @@ spec:
   selector:
     app: nexus-app
   ports:
-  - port: 5000
-    targetPort: 5000
-    nodePort: 30500
+    - port: 5000
+      targetPort: 5000
+      nodePort: 30500
