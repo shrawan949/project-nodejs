@@ -7,6 +7,15 @@ import connectDB from './config/db.js';
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
+  if (process.env.NODE_ENV === 'production') {
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+      throw new Error('JWT_SECRET must be set to a random value of at least 32 characters in production.');
+    }
+    if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
+      throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD must be set in production.');
+    }
+  }
+
   // Connect to Database
   await connectDB();
 
