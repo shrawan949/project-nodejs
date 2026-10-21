@@ -678,6 +678,18 @@ const couponsData = [
 // SEED FUNCTION
 // ──────────────────────────────────────────────
 const seedData = async () => {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('Refusing to seed a production database.');
+    process.exit(1);
+  }
+  if (process.env.SEED_CONFIRM !== 'YES') {
+    console.error('Seeding deletes existing collections. Set SEED_CONFIRM=YES to confirm this destructive operation.');
+    process.exit(1);
+  }
+  if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD || !process.env.DEMO_CUSTOMER_PASSWORD) {
+    console.error('Set ADMIN_EMAIL, ADMIN_PASSWORD, and DEMO_CUSTOMER_PASSWORD in .env before seeding.');
+    process.exit(1);
+  }
   try {
     await mongoose.connect(MONGO_URI);
     console.log('🌱 Connected to database for seeding...');
@@ -692,12 +704,12 @@ const seedData = async () => {
 
     // ── Seed Users ──
     const admin = await User.create({
-      name: 'Nexus Admin', email: process.env.ADMIN_EMAIL || 'admin@nexus-shop.com',
-      password: process.env.ADMIN_PASSWORD || 'AdminSecure2026!', role: 'admin',
+      name: 'Nexus Admin', email: process.env.ADMIN_EMAIL,
+      password: process.env.ADMIN_PASSWORD, role: 'admin',
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
     });
     const customer1 = await User.create({
-      name: 'John Doe', email: 'john@example.com', password: 'Customer123!', role: 'customer',
+      name: 'John Doe', email: 'john@example.com', password: process.env.DEMO_CUSTOMER_PASSWORD, role: 'customer',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
     });
     console.log('👤 Seeded users: Admin and Customer accounts.');
@@ -793,7 +805,13 @@ const seedData = async () => {
   }
 };
 
-if (process.argv[2] === '-d') {
+if (process.env.NODE_ENV === 'production') {
+  console.error('Refusing to run destructive seed commands in production.');
+  process.exit(1);
+} else if (process.env.SEED_CONFIRM !== 'YES') {
+  console.error('This command deletes database collections. Set SEED_CONFIRM=YES to confirm.');
+  process.exit(1);
+} else if (process.argv[2] === '-d') {
   mongoose.connect(MONGO_URI).then(async () => {
     await Promise.all([
       User.deleteMany(), Product.deleteMany(), Category.deleteMany(),
