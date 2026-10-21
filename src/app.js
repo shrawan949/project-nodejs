@@ -47,8 +47,18 @@ if (process.env.NODE_ENV !== 'test') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || true,
+  origin(origin, callback) {
+    // Same-origin requests do not send an Origin header. Cross-origin browser
+    // requests must match an explicit allow-list; never reflect arbitrary origins.
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Origin is not allowed by CORS'));
+  },
   credentials: true,
 }));
 app.use(mongoSanitize());
